@@ -13,6 +13,8 @@ var winner = ""
 
 func _process(delta):
 	if game_over:
+		if Input.is_action_pressed("ui_accept"):
+			restart_game()
 		update()
 		return
 	
@@ -53,11 +55,18 @@ func _process(delta):
 
 func check_win():
 	if score1 >= 11:
-		winner = "Player 1"
+		winner = "Left"
 		game_over = true
 	elif score2 >= 11:
-		winner = "Computer"
+		winner = "Right"
 		game_over = true
+
+func restart_game():
+	score1 = 0
+	score2 = 0
+	game_over = false
+	winner = ""
+	reset_ball()
 
 func reset_ball():
 	ball_position = Vector2(400, 300)
@@ -65,14 +74,14 @@ func reset_ball():
 
 func _draw():
 	if game_over:
-		var msg = winner + " wins! " + str(score1) + " - " + str(score2)
-		draw_string(FontDB.find_matching_or_add("res://fonts/arial.ttf"), Vector2(120, 280), msg, -1, 40, 32, Color.yellow)
-		draw_string(FontDB.find_matching_or_add("res://fonts/arial.ttf"), Vector2(180, 330), "Press R to restart", -1, 30, 24, Color.white)
+		var msg = winner + " Player Wins!"
+		draw_string(FontDB.find_matching_or_add("res://fonts/arial.ttf"), Vector2(150, 280), msg, -1, 40, 32, Color.yellow)
+		draw_string(FontDB.find_matching_or_add("res://fonts/arial.ttf"), Vector2(200, 330), "Press SPACE to restart", -1, 30, 24, Color.white)
 		return
 	
-	# Draw scores
-	draw_string(FontDB.find_matching_or_add("res://fonts/arial.ttf"), Vector2(150, 50), str(score1), -1, 40, 32, Color.white)
-	draw_string(FontDB.find_matching_or_add("res://fonts/arial.ttf"), Vector2(550, 50), str(score2), -1, 40, 32, Color.white)
+	# Draw center scoreboard
+	var score_text = str(score1) + "  -  " + str(score2)
+	draw_string(FontDB.find_matching_or_add("res://fonts/arial.ttf"), Vector2(320, 50), score_text, -1, 40, 32, Color.white)
 	
 	# Draw ball
 	draw_circle(ball_position, ball_radius, Color.white)
