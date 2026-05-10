@@ -15,6 +15,7 @@ onready var winner_label = get_node("WinnerLabel")
 onready var restart_label = get_node("RestartLabel")
 
 func _ready():
+	restart_label.text = "Press SPACE to restart"
 	winner_label.visible = false
 	restart_label.visible = false
 
