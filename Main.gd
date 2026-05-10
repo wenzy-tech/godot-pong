@@ -11,10 +11,14 @@ var ball_radius = 10
 var game_over = false
 var winner = ""
 
-# Combo system
-var combo_count = 0
+# Combo system (separate per player)
+var pad1_combo = 0  # How many times pad1 hit ball consecutively
+var pad2_combo = 0  # How many times pad2 hit ball consecutively
 var combo_display = 0
 var combo_timer = 0.0
+
+# Score multiplier
+var multiplier = 1
 
 # Power-up system
 var powerup_active = false
@@ -39,12 +43,12 @@ var _custom_font = null
 # Power-up type definitions
 const POWERUP_TYPES = ["speed_up", "slow", "grow_left", "shrink_right", "shrink_ai", "big_ball"]
 const POWERUP_COLORS = {
-	"speed_up": Color(1, 0.2, 0.2),      # red
-	"slow": Color(0.2, 0.5, 1),         # blue
-	"grow_left": Color(0.2, 1, 0.2),    # green
-	"shrink_right": Color(1, 0.8, 0.2), # orange
-	"shrink_ai": Color(1, 0.2, 1),      # purple
-	"big_ball": Color(1, 1, 0.2)         # yellow
+	"speed_up": Color(1, 0.2, 0.2),
+	"slow": Color(0.2, 0.5, 1),
+	"grow_left": Color(0.2, 1, 0.2),
+	"shrink_right": Color(1, 0.8, 0.2),
+	"shrink_ai": Color(1, 0.2, 1),
+	"big_ball": Color(1, 1, 0.2)
 }
 
 func _ready():
@@ -57,7 +61,7 @@ func _ready():
 	_custom_font = DynamicFont.new()
 	_custom_font.font_data = font_data
 	_custom_font.use_filter = true
-	print("DEBUG V11: _ready done")
+	print("DEBUG V12: _ready done")
 
 func _process(delta):
 	if game_over:
@@ -80,15 +84,25 @@ func _process(delta):
 	if ball_position.y < ball_radius or ball_position.y > 600 - ball_radius:
 		ball_velocity.y = -ball_velocity.y
 	
+	# Ball out left - right scores (left paddle missed / right player scores)
 	if ball_position.x < ball_radius:
-		score2 += 1
-		combo_count = 0
+		# Left missed, right scores. Left combo resets.
+		var points = get_score_points(pad1_combo)
+		score2 += points
+		combo_display = pad1_combo
+		pad1_combo = 0
+		pad2_combo = 0
 		check_win()
 		reset_ball()
 	
+	# Ball out right - left scores (right paddle missed / left player scores)
 	if ball_position.x > 800 - ball_radius:
-		score1 += 1
-		combo_count = 0
+		# Right missed, left scores. Right combo resets.
+		var points = get_score_points(pad2_combo)
+		score1 += points
+		combo_display = pad2_combo
+		pad1_combo = 0
+		pad2_combo = 0
 		check_win()
 		reset_ball()
 	
@@ -99,17 +113,21 @@ func _process(delta):
 		pad2_pos.y += pad_speed * 0.7 * delta
 	pad2_pos.y = clamp(pad2_pos.y, 50, 550)
 	
-	# Paddle collisions
+	# Paddle collisions - pad1 hit
 	if ball_position.x < 50 and abs(ball_position.y - pad1_pos.y) < pad1_height * 0.5:
 		ball_velocity.x = abs(ball_velocity.x)
-		combo_count += 1
-		combo_display = combo_count
+		pad1_combo += 1
+		combo_display = pad1_combo
 		combo_timer = 0.0
 	
+	# Paddle collisions - pad2 hit
 	if ball_position.x > 750 and abs(ball_position.y - pad2_pos.y) < pad2_height * 0.5:
 		ball_velocity.x = -abs(ball_velocity.x)
+		pad2_combo += 1
+		combo_display = pad2_combo
+		combo_timer = 0.0
 	
-	# Power-up spawning (spawn every interval)
+	# Power-up spawning
 	powerup_spawn_timer += delta
 	if powerup_spawn_timer >= powerup_spawn_interval:
 		spawn_random_powerup()
@@ -122,7 +140,7 @@ func _process(delta):
 			reset_powerup_effects()
 			powerup_active = false
 	
-	# Combo decay
+	# Combo display decay
 	if combo_display > 0:
 		combo_timer += delta
 		if combo_timer > 2.0:
@@ -135,16 +153,25 @@ func _process(delta):
 	
 	update()
 
+func get_score_points(combo):
+	# 5 combo = 2 points, 8+ combo = 3 points (max)
+	if combo >= 8:
+		return 3
+	elif combo >= 5:
+		return 2
+	else:
+		return 1
+
 func spawn_random_powerup():
 	var types = POWERUP_TYPES
 	powerup_type = types[randi() % types.size()]
 	powerup_position = Vector2(250 + randi() % 300, 150 + randi() % 300)
 	powerup_active = true
 	powerup_timer = 0.0
-	print("DEBUG V11: powerup spawned: ", powerup_type, " at ", powerup_position)
+	print("DEBUG V12: powerup spawned: ", powerup_type)
 
 func apply_powerup():
-	print("DEBUG V11: applying powerup: ", powerup_type)
+	print("DEBUG V12: applying powerup: ", powerup_type)
 	match powerup_type:
 		"speed_up":
 			var speed = ball_velocity.length() * 1.5
@@ -163,11 +190,10 @@ func apply_powerup():
 	powerup_active = false
 
 func reset_powerup_effects():
-	# Reset any timed effects
 	pad1_height = 100.0
 	pad2_height = 100.0
 	ball_radius = 10.0
-	print("DEBUG V11: powerup effects reset")
+	print("DEBUG V12: powerup effects reset")
 
 func check_win():
 	if score1 >= 11:
@@ -182,8 +208,10 @@ func check_win():
 func restart_game():
 	score1 = 0
 	score2 = 0
-	combo_count = 0
+	pad1_combo = 0
+	pad2_combo = 0
 	combo_display = 0
+	multiplier = 1
 	game_over = false
 	winner = ""
 	powerup_active = false
@@ -201,12 +229,13 @@ func reset_ball():
 	ball_velocity = Vector2(400 * (1 if randf() > 0.5 else -1), 400 * (1 if randf() > 0.5 else -1))
 
 func _draw():
-	# V11 indicator: 5 circles, first gray, last gold
-	draw_circle(Vector2(720, 20), 5, Color(0.4, 0.4, 0.4, 1))
-	draw_circle(Vector2(735, 20), 5, Color(1, 0.84, 0, 1))
-	draw_circle(Vector2(750, 20), 5, Color(1, 0.84, 0, 1))
-	draw_circle(Vector2(765, 20), 5, Color(1, 0.84, 0, 1))
-	draw_circle(Vector2(780, 20), 5, Color(1, 0.84, 0, 1))
+	# V12 indicator: 6 circles
+	draw_circle(Vector2(700, 20), 5, Color(1, 0.84, 0, 1))
+	draw_circle(Vector2(715, 20), 5, Color(1, 0.84, 0, 1))
+	draw_circle(Vector2(730, 20), 5, Color(1, 0.84, 0, 1))
+	draw_circle(Vector2(745, 20), 5, Color(1, 0.84, 0, 1))
+	draw_circle(Vector2(760, 20), 5, Color(1, 0.84, 0, 1))
+	draw_circle(Vector2(775, 20), 5, Color(0.4, 0.4, 0.4, 1))
 	
 	# Center dashed line
 	for i in range(0, 600, 40):
@@ -218,26 +247,27 @@ func _draw():
 	for i in range(score2):
 		draw_circle(Vector2(700 - i * 25, 30), 10, Color.white)
 	
-	# Ball (size can change from power-up)
+	# Ball
 	draw_circle(ball_position, ball_radius, Color.white)
 	
-	# Paddles (height can change from power-up)
+	# Paddles
 	draw_rect(Rect2(10, pad1_pos.y - pad1_height * 0.5, pad_width, pad1_height), Color.white)
 	draw_rect(Rect2(770, pad2_pos.y - pad2_height * 0.5, pad_width, pad2_height), Color.white)
 	
-	# Combo display
+	# Combo display with score multiplier
 	if combo_display > 1 and _custom_font != null:
-		var txt = "x" + str(combo_display) + " COMBO!"
+		var pts = get_score_points(combo_display)
+		var txt = "x" + str(combo_display)
+		if pts > 1:
+			txt += " [" + str(pts) + " PTS]"
 		draw_string(_custom_font, Vector2(310, 570), txt, Color(1, 0.5, 0))
 	
 	# Power-up if active
 	if powerup_active and _custom_font != null:
 		var col = POWERUP_COLORS.get(powerup_type, Color.white)
 		draw_circle(powerup_position, powerup_radius, col)
-		# Draw label above
 		var label = powerup_type.replace("_", " ").to_upper()
 		draw_string(_custom_font, powerup_position + Vector2(-35, -20), label, Color.white)
-		# Timer bar below
 		var remaining = powerup_duration - powerup_timer
 		var bar_w = (remaining / powerup_duration) * 60
 		draw_rect(Rect2(powerup_position.x - 30, powerup_position.y + 20, 60, 5), Color(0.3, 0.3, 0.3))
