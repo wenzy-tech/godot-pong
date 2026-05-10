@@ -17,8 +17,14 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y xvfb libgtk-3-0 libgl1-mesa-dri libasound2 curl
-          
+          sudo apt-get install -y xvfb libgtk-3-0 libgl1-mesa-dri libasound2 curl unzip
+
+      - name: Download Godot Linux headless binary
+        run: |
+          curl -L -o godot.zip https://github.com/godotengine/godot/releases/download/3.5.2-stable/Godot_v3.5.2-stable_linux.headless.zip
+          unzip -o godot.zip -d godot-bin/
+          chmod +x godot-bin/Godot_v3.5.2-stable_linux.headless
+
       - name: Download Godot export templates
         run: |
           mkdir -p ~/.local/share/godot/templates/3.5.2.stable
@@ -27,19 +33,6 @@ jobs:
           unzip -o /tmp/templates.tpz -d ~/.local/share/godot/templates/3.5.2.stable/
           mv ~/.local/share/godot/templates/3.5.2.stable/templates/* \
              ~/.local/share/godot/templates/3.5.2.stable/ 2>/dev/null || true
-          
-      - name: Set up Godot
-        run: |
-          curl -L -o /tmp/godot.zip https://github.com/godotengine/godot/releases/download/3.5.2-stable-stable/Godot_v3.5.2-stable_export_templates.tpz
-          echo "Downloaded"
-        timeout-minutes: 5
-
-      - name: Get Godot Linux headless binary
-        run: |
-          curl -L -o godot.zip https://github.com/godotengine/godot/releases/download/3.5.2-stable-stable/Godot_v3.5.2-stable_linux.headless.zip
-          unzip -o godot.zip -d godot-bin/
-          chmod +x godot-bin/Godot_v3.5.2-stable_linux.headless
-        timeout-minutes: 5
 
       - name: Build HTML5 export with xvfb
         run: |
@@ -47,7 +40,6 @@ jobs:
           DISPLAY=:99 xvfb-run --server-args="-screen 0 1024x768x24" \
             ./godot-bin/Godot_v3.5.2-stable_linux.headless \
             --path . --headless --export "HTML5" pong/index.html
-        timeout-minutes: 10
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
