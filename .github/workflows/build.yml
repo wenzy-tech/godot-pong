@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -32,7 +32,6 @@ jobs:
           curl -L -o /tmp/templates.tpz \
             https://github.com/godotengine/godot/releases/download/3.5.2-stable/Godot_v3.5.2-stable_export_templates.tpz
           unzip -o /tmp/templates.tpz -d /tmp/templates_dir/
-          # Move templates out of the nested subdirectory
           cp -r /tmp/templates_dir/templates/* \
              ~/.local/share/godot/templates/3.5.2.stable/
 

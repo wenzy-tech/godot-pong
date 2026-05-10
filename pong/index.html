@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Pong Game</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #000; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; font-family: sans-serif; }
+canvas { background: #111; border: 2px solid #333; max-width: 100vw; max-height: 100vh; }
+#ui { position: absolute; top: 10px; left: 0; right: 0; text-align: center; color: #fff; font-size: 32px; pointer-events: none; }
+#winner { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; display: none; }
+#winner .msg { font-size: 28px; color: #FFD700; margin-bottom: 10px; }
+#winner .sub { font-size: 14px; color: #ccc; }
+#restart { color: #0af; font-size: 14px; margin-top: 10px; cursor: pointer; pointer-events: auto; }
+</style>
+</head>
+<body>
+<div id="ui"><span id="score">0 - 0</span></div>
+<canvas id="c"></canvas>
+<div id="winner">
+  <div class="msg" id="winmsg"></div>
+  <div class="sub">Press RESTART or Space</div>
+  <div id="restart" onclick="restart()">RESTART</div>
+</div>
+<script>
+const c = document.getElementById('c');
+const ctx = c.getContext('2d');
+const W = 800, H = 600;
+c.width = W; c.height = H;
+
+let ball = {x: W/2, y: H/2, vx: 5, vy: 4, r: 10};
+let pad1 = {x: 20, y: H/2, w: 15, h: 100, speed: 7};
+let pad2 = {x: W-35, y: H/2, w: 15, h: 100, speed: 5};
+let score1 = 0, score2 = 0;
+let gameOver = false;
+let winner = "";
+let keys = {};
+
+document.addEventListener('keydown', e => { keys[e.key] = true; if(e.key === ' ' && gameOver) restart(); });
+document.addEventListener('keyup', e => keys[e.key] = false);
+
+function resetBall(dir) {
+  ball.x = W/2; ball.y = H/2;
+  ball.vx = dir * (5 + Math.random()*2);
+  ball.vy = (Math.random()-0.5)*8;
+}
+function restart() {
+  score1 = 0; score2 = 0; gameOver = false; winner = "";
+  document.getElementById('winner').style.display = 'none';
+  updateScore(); resetBall(1);
+}
+function checkWin() {
+  if(score1 >= 11) { winner = "LEFT wins!"; gameOver = true; }
+  else if(score2 >= 11) { winner = "RIGHT wins!"; gameOver = true; }
+  if(gameOver) {
+    document.getElementById('winmsg').textContent = winner;
+    document.getElementById('winner').style.display = 'block';
+  }
+}
+function updateScore() {
+  document.getElementById('score').textContent = score1 + ' - ' + score2;
+}
+function moveBall() {
+  ball.x += ball.vx; ball.y += ball.vy;
+  if(ball.y - ball.r < 0 || ball.y + ball.r > H) ball.vy *= -1;
+  if(ball.x - ball.r < 0) { score2++; updateScore(); checkWin(); resetBall(-1); }
+  if(ball.x + ball.r > W) { score1++; updateScore(); checkWin(); resetBall(1); }
+}
+function movePads() {
+  if(keys['w'] || keys['W'] || keys['ArrowUp']) pad1.y = Math.max(pad1.h/2, pad1.y - pad1.speed);
+  if(keys['s'] || keys['S'] || keys['ArrowDown']) pad1.y = Math.min(H - pad1.h/2, pad1.y + pad1.speed);
+  // AI pad2
+  if(ball.y < pad2.y - 20) pad2.y -= pad2.speed;
+  if(ball.y > pad2.y + 20) pad2.y += pad2.speed;
+  pad2.y = Math.max(pad2.h/2, Math.min(H - pad2.h/2, pad2.y));
+}
+function collide() {
+  if(ball.x - ball.r < pad1.x + pad1.w && ball.x > pad1.x && Math.abs(ball.y - pad1.y) < pad1.h/2)
+    ball.vx = Math.abs(ball.vx);
+  if(ball.x + ball.r > pad2.x && ball.x < pad2.x + pad2.w && Math.abs(ball.y - pad2.y) < pad2.h/2)
+    ball.vx = -Math.abs(ball.vx);
+}
+function draw() {
+  ctx.fillStyle = '#000'; ctx.fillRect(0, 0, W, H);
+  // center line
+  ctx.strokeStyle = '#333'; ctx.setLineDash([20, 20]);
+  ctx.beginPath(); ctx.moveTo(W/2, 0); ctx.lineTo(W/2, H); ctx.stroke(); ctx.setLineDash([]);
+  // scores
+  ctx.fillStyle = '#fff'; ctx.font = '32px sans-serif'; ctx.textAlign = 'center';
+  ctx.fillText(score1, 100, 40); ctx.fillText(score2, W-100, 40);
+  // ball
+  ctx.beginPath(); ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI*2); ctx.fillStyle = '#fff'; ctx.fill();
+  // paddles
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(pad1.x, pad1.y - pad1.h/2, pad1.w, pad1.h);
+  ctx.fillRect(pad2.x, pad2.y - pad2.h/2, pad2.w, pad2.h);
+  // winner indicator
+  if(gameOver) {
+    ctx.fillStyle = winner.startsWith('LEFT') ? '#0f0' : '#f00';
+    ctx.beginPath(); ctx.arc(winner.startsWith('LEFT') ? 80 : W-80, H/2, 25, 0, Math.PI*2); ctx.fill();
+  }
+}
+function loop() {
+  if(!gameOver) { moveBall(); movePads(); collide(); }
+  draw();
+  requestAnimationFrame(loop);
+}
+resetBall(1); updateScore(); loop();
+</script>
+</body>
+</html>
