@@ -14,9 +14,20 @@ var winner = ""
 onready var winner_label = get_node("WinnerLabel")
 onready var restart_label = get_node("RestartLabel")
 
+# Font for drawing text
+var _custom_font = null
+
 func _ready():
 	winner_label.visible = false
 	restart_label.visible = false
+	# Load custom font
+	var font_data = DynamicFontData.new()
+	font_data.font_path = "res://font.ttf"
+	font_data.size = 24
+	_custom_font = DynamicFont.new()
+	_custom_font.font_data = font_data
+	_custom_font.use_filter = true
+	print("DEBUG: font loaded, font_data=", font_data, " font=", _custom_font)
 
 func _process(delta):
 	if game_over:
@@ -60,12 +71,15 @@ func _process(delta):
 	update()
 
 func check_win():
+	print("DEBUG check_win: score1=", score1, " score2=", score2, " game_over=", game_over)
 	if score1 >= 11:
 		winner = "Left Player Wins!"
 		game_over = true
+		winner_label.text = winner
 	elif score2 >= 11:
 		winner = "Right Player Wins!"
 		game_over = true
+		winner_label.text = winner
 
 func restart_game():
 	score1 = 0
@@ -81,7 +95,7 @@ func reset_ball():
 	ball_velocity = Vector2(400 * (1 if randf() > 0.5 else -1), 400 * (1 if randf() > 0.5 else -1))
 
 func _draw():
-	# V7 indicator: 4 yellow circles
+	# V8 indicator: 4 yellow circles + 1 red circle
 	draw_circle(Vector2(750, 20), 5, Color(1, 0.84, 0, 1))
 	draw_circle(Vector2(765, 20), 5, Color(1, 0.84, 0, 1))
 	draw_circle(Vector2(780, 20), 5, Color(1, 0.84, 0, 1))
@@ -103,18 +117,17 @@ func _draw():
 	draw_rect(Rect2(10, pad1_pos.y - 50, 20, 100), Color.white)
 	draw_rect(Rect2(770, pad2_pos.y - 50, 20, 100), Color.white)
 	
-	# Game over: draw visual overlay (NO text drawing)
+	# Game over: use draw_string with custom font if available
 	if game_over:
-		# Dark overlay rectangle
+		# Dark overlay
 		draw_rect(Rect2(150, 150, 500, 300), Color(0, 0, 0, 0.85))
 		# Yellow border
 		draw_rect(Rect2(150, 150, 500, 300), Color(1, 0.84, 0), false, 4)
-		# Left player indicator (green circle on winner side)
-		if "Left" in winner:
-			draw_circle(Vector2(200, 300), 60, Color.green)
+		# Winner text using draw_string
+		if _custom_font != null:
+			draw_string(_custom_font, Vector2(180, 260), winner, Color(1, 0.84, 0))
+			draw_string(_custom_font, Vector2(200, 320), "Press SPACE to restart", Color(0.8, 0.8, 0.8))
 		else:
-			draw_circle(Vector2(600, 300), 60, Color.green)
-		# "Press SPACE" shown as small shapes instead of text
-		# Draw small instruction text via shape blocks (no font needed)
-		for i in range(5):
-			draw_rect(Rect2(280 + i*25, 360, 15, 15), Color(0.7, 0.7, 0.7))
+			# Fallback: draw colored blocks as visual indicator
+			draw_circle(Vector2(400, 220), 15, Color(1, 0.84, 0))
+			draw_circle(Vector2(400, 330), 10, Color(0.7, 0.7, 0.7))
