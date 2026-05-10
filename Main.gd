@@ -15,14 +15,16 @@ onready var winner_label = get_node("WinnerLabel")
 onready var restart_label = get_node("RestartLabel")
 
 func _ready():
-	restart_label.text = "Press SPACE to restart"
 	winner_label.visible = false
 	restart_label.visible = false
+	restart_label.text = "Press SPACE to restart"
 
 func _process(delta):
 	if game_over:
 		winner_label.visible = true
 		restart_label.visible = true
+		# Update label text each frame to ensure correct winner is shown
+		winner_label.text = winner
 		if Input.is_action_pressed("ui_accept"):
 			restart_game()
 		update()
@@ -66,8 +68,6 @@ func check_win():
 	elif score2 >= 11:
 		winner = "Right Player Wins!"
 		game_over = true
-	if game_over:
-		winner_label.text = winner
 
 func restart_game():
 	score1 = 0
