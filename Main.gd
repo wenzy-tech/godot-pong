@@ -18,12 +18,12 @@ func _ready():
 	winner_label.visible = false
 	restart_label.visible = false
 	restart_label.text = "Press SPACE to restart"
+	print("DEBUG: _ready called, labels initialized")
 
 func _process(delta):
 	if game_over:
 		winner_label.visible = true
 		restart_label.visible = true
-		# Update label text each frame to ensure correct winner is shown
 		winner_label.text = winner
 		if Input.is_action_pressed("ui_accept"):
 			restart_game()
@@ -62,12 +62,17 @@ func _process(delta):
 	update()
 
 func check_win():
+	print("DEBUG check_win: score1=", score1, " score2=", score2, " game_over=", game_over)
 	if score1 >= 11:
 		winner = "Left Player Wins!"
 		game_over = true
+		winner_label.text = winner
+		print("DEBUG: LEFT WINS, winner_label set to: ", winner)
 	elif score2 >= 11:
 		winner = "Right Player Wins!"
 		game_over = true
+		winner_label.text = winner
+		print("DEBUG: RIGHT WINS, winner_label set to: ", winner)
 
 func restart_game():
 	score1 = 0
