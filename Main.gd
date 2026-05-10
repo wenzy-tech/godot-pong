@@ -10,6 +10,7 @@ var pad_speed = 400
 var ball_radius = 10
 var game_over = false
 var winner = ""
+
 func _process(delta):
 	if game_over:
 		if Input.is_action_pressed("ui_accept"):
@@ -85,12 +86,24 @@ func _draw():
 	draw_rect(Rect2(770, pad2_pos.y - 50, 20, 100), Color.white)
 	
 	if game_over:
-		# Draw winner banner background
-		draw_rect(Rect2(200, 220, 400, 150), Color(0, 0, 0, 0.7))
-		# Draw border
-		draw_rect(Rect2(200, 220, 400, 150), Color.yellow, false, 2)
-		# Draw winning side indicator
+		# Full screen winner overlay
 		if winner == "LEFT":
-			draw_circle(Vector2(100, 295), 20, Color.green)
+			# Green tint on left side
+			for i in range(0, 400, 15):
+				for j in range(0, 600, 15):
+					if (i/15 + j/15) % 2 == 0:
+						draw_rect(Rect2(i, j, 15, 15), Color(0, 0.7, 0, 0.3))
+			# Green vertical border line
+			draw_rect(Rect2(395, 0, 10, 600), Color.green)
+			# Circle indicator on LEFT side
+			draw_circle(Vector2(100, 295), 30, Color.green)
 		else:
-			draw_circle(Vector2(700, 295), 20, Color.green)
+			# Green tint on right side
+			for i in range(400, 800, 15):
+				for j in range(0, 600, 15):
+					if (i/15 + j/15) % 2 == 0:
+						draw_rect(Rect2(i, j, 15, 15), Color(0, 0.7, 0, 0.3))
+			# Green vertical border line
+			draw_rect(Rect2(395, 0, 10, 600), Color.green)
+			# Circle indicator on RIGHT side
+			draw_circle(Vector2(700, 295), 30, Color.green)
