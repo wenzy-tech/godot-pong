@@ -11,8 +11,17 @@ var ball_radius = 10
 var game_over = false
 var winner = ""
 
+onready var winner_label = get_node("WinnerLabel")
+onready var restart_label = get_node("RestartLabel")
+
+func _ready():
+	winner_label.visible = false
+	restart_label.visible = false
+
 func _process(delta):
 	if game_over:
+		winner_label.visible = true
+		restart_label.visible = true
 		if Input.is_action_pressed("ui_accept"):
 			restart_game()
 		update()
@@ -56,12 +65,16 @@ func check_win():
 	elif score2 >= 11:
 		winner = "RIGHT"
 		game_over = true
+	if game_over:
+		winner_label.text = winner + " WINS!"
 
 func restart_game():
 	score1 = 0
 	score2 = 0
 	game_over = false
 	winner = ""
+	winner_label.visible = false
+	restart_label.visible = false
 	reset_ball()
 
 func reset_ball():
@@ -84,26 +97,3 @@ func _draw():
 	# Draw paddles
 	draw_rect(Rect2(10, pad1_pos.y - 50, 20, 100), Color.white)
 	draw_rect(Rect2(770, pad2_pos.y - 50, 20, 100), Color.white)
-	
-	if game_over:
-		# Full screen winner overlay
-		if winner == "LEFT":
-			# Green tint on left side
-			for i in range(0, 400, 15):
-				for j in range(0, 600, 15):
-					if (i/15 + j/15) % 2 == 0:
-						draw_rect(Rect2(i, j, 15, 15), Color(0, 0.7, 0, 0.3))
-			# Green vertical border line
-			draw_rect(Rect2(395, 0, 10, 600), Color.green)
-			# Circle indicator on LEFT side
-			draw_circle(Vector2(100, 295), 30, Color.green)
-		else:
-			# Green tint on right side
-			for i in range(400, 800, 15):
-				for j in range(0, 600, 15):
-					if (i/15 + j/15) % 2 == 0:
-						draw_rect(Rect2(i, j, 15, 15), Color(0, 0.7, 0, 0.3))
-			# Green vertical border line
-			draw_rect(Rect2(395, 0, 10, 600), Color.green)
-			# Circle indicator on RIGHT side
-			draw_circle(Vector2(700, 295), 30, Color.green)
