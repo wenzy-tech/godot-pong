@@ -18,7 +18,7 @@ func _ready():
 	winner_label.visible = false
 	restart_label.visible = false
 	restart_label.text = "Press SPACE to restart"
-	print("DEBUG: _ready called, labels initialized")
+	print("DEBUG: _ready called, labels initialized, version 3")
 
 func _process(delta):
 	if game_over:
@@ -88,6 +88,12 @@ func reset_ball():
 	ball_velocity = Vector2(400 * (1 if randf() > 0.5 else -1), 400 * (1 if randf() > 0.5 else -1))
 
 func _draw():
+	# Draw version indicator - top right corner
+	# Version 3: shows yellow dots (3 yellow circles)
+	draw_circle(Vector2(760, 20), 5, Color(1, 0.84, 0, 1))   # yellow
+	draw_circle(Vector2(775, 20), 5, Color(1, 0.84, 0, 1))   # yellow
+	draw_circle(Vector2(790, 20), 5, Color(0.3, 0.3, 0.3))   # gray placeholder for "3"
+	
 	for i in range(0, 600, 40):
 		draw_rect(Rect2(398, i, 4, 20), Color(0.3, 0.3, 0.3))
 	for i in range(score1):
