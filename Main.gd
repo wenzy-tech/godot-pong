@@ -60,13 +60,13 @@ func _process(delta):
 
 func check_win():
 	if score1 >= 11:
-		winner = "LEFT"
+		winner = "Left Player Wins!"
 		game_over = true
 	elif score2 >= 11:
-		winner = "RIGHT"
+		winner = "Right Player Wins!"
 		game_over = true
 	if game_over:
-		winner_label.text = winner + " WINS!"
+		winner_label.text = winner
 
 func restart_game():
 	score1 = 0
@@ -82,18 +82,12 @@ func reset_ball():
 	ball_velocity = Vector2(400 * (1 if randf() > 0.5 else -1), 400 * (1 if randf() > 0.5 else -1))
 
 func _draw():
-	# Draw center dashed line
 	for i in range(0, 600, 40):
 		draw_rect(Rect2(398, i, 4, 20), Color(0.3, 0.3, 0.3))
-	
-	# Draw scores using big circles (score pips)
 	for i in range(score1):
 		draw_circle(Vector2(100 + i * 25, 30), 10, Color.white)
 	for i in range(score2):
 		draw_circle(Vector2(700 - i * 25, 30), 10, Color.white)
-	
-	# Draw ball
 	draw_circle(ball_position, ball_radius, Color.white)
-	# Draw paddles
 	draw_rect(Rect2(10, pad1_pos.y - 50, 20, 100), Color.white)
 	draw_rect(Rect2(770, pad2_pos.y - 50, 20, 100), Color.white)
