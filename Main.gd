@@ -11,30 +11,18 @@ var ball_radius = 10
 var game_over = false
 var winner = ""
 
-onready var winner_label = get_node("WinnerLabel")
-onready var restart_label = get_node("RestartLabel")
+# Font for drawing text (built-in)
+var _font = null
 
 func _ready():
-	print("DEBUG _ready: winner_label=", winner_label, " restart_label=", restart_label)
-	if winner_label:
-		winner_label.visible = false
-		winner_label.text = "LEFT WINS!"
-	if restart_label:
-		restart_label.visible = false
-		restart_label.text = "Press SPACE to restart"
-	print("DEBUG: _ready done, version 5")
+	# Use DynamicFont as fallback for Godot HTML5
+	var f = DynamicFont.new()
+	f.size = 24
+	_font = f
+	print("DEBUG: _ready done, font=", _font)
 
 func _process(delta):
 	if game_over:
-		print("DEBUG _process game_over: winner=", winner)
-		if winner_label:
-			winner_label.visible = true
-			winner_label.text = winner
-			print("DEBUG: set winner_label text to: ", winner_label.text)
-		else:
-			print("DEBUG ERROR: winner_label is null!")
-		if restart_label:
-			restart_label.visible = true
 		if Input.is_action_pressed("ui_accept"):
 			restart_game()
 		update()
@@ -76,23 +64,17 @@ func check_win():
 	if score1 >= 11:
 		winner = "Left Player Wins!"
 		game_over = true
-		winner_label.text = winner
-		print("DEBUG: LEFT WINS, winner_label set to: ", winner)
+		print("DEBUG: LEFT WINS!")
 	elif score2 >= 11:
 		winner = "Right Player Wins!"
 		game_over = true
-		winner_label.text = winner
-		print("DEBUG: RIGHT WINS, winner_label set to: ", winner)
+		print("DEBUG: RIGHT WINS!")
 
 func restart_game():
 	score1 = 0
 	score2 = 0
 	game_over = false
 	winner = ""
-	if winner_label:
-		winner_label.visible = false
-	if restart_label:
-		restart_label.visible = false
 	reset_ball()
 
 func reset_ball():
@@ -100,10 +82,28 @@ func reset_ball():
 	ball_velocity = Vector2(400 * (1 if randf() > 0.5 else -1), 400 * (1 if randf() > 0.5 else -1))
 
 func _draw():
-	# V5 indicator: 3 yellow circles
-	draw_circle(Vector2(760, 20), 5, Color(1, 0.84, 0, 1))
-	draw_circle(Vector2(775, 20), 5, Color(1, 0.84, 0, 1))
-	draw_circle(Vector2(790, 20), 5, Color(1, 0.84, 0, 1))
+	# V6: 4 yellow circles = new version
+	draw_circle(Vector2(750, 20), 5, Color(1, 0.84, 0, 1))
+	draw_circle(Vector2(765, 20), 5, Color(1, 0.84, 0, 1))
+	draw_circle(Vector2(780, 20), 5, Color(1, 0.84, 0, 1))
+	draw_circle(Vector2(795, 20), 5, Color(1, 0.84, 0, 1))
+	
+	# Show "Press SPACE to restart" on the canvas when game is not over
+	if not game_over:
+		draw_string(Font, Vector2(20, 570), "W/S: move   SPACE: pause", Color(0.7, 0.7, 0.7))
+	
+	# Game over: draw winner text directly on canvas (no Label nodes needed)
+	if game_over:
+		# Draw semi-transparent black overlay
+		draw_rect(Rect2(200, 200, 400, 200), Color(0, 0, 0, 0.8))
+		# Draw yellow border
+		draw_rect(Rect2(200, 200, 400, 200), Color(1, 0.84, 0), false, 4)
+		# Draw winner text in large font
+		var text = winner if winner != "" else "???"
+		var color = Color(1, 1, 1) if "Left" in text else Color(1, 1, 0.8)
+		draw_string(Font, Vector2(250, 290), text, Color(1, 0.84, 0))
+		draw_string(Font, Vector2(260, 340), "Press SPACE to restart", Color(0.8, 0.8, 0.8))
+		return
 	
 	for i in range(0, 600, 40):
 		draw_rect(Rect2(398, i, 4, 20), Color(0.3, 0.3, 0.3))
