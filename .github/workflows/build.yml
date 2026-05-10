@@ -13,12 +13,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
+
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y xvfb libgtk-3-0 libgl1-mesa-dri libasound2 curl unzip
-      
+
       - name: Download Godot Linux headless binary
         run: |
           curl -L -o godot.zip \
@@ -32,13 +32,18 @@ jobs:
           curl -L -o /tmp/templates.tpz \
             https://github.com/godotengine/godot/releases/download/3.5.2-stable/Godot_v3.5.2-stable_export_templates.tpz
           unzip -o /tmp/templates.tpz -d /tmp/templates_dir/
-          # Move templates out of the nested subdirectory
           cp -r /tmp/templates_dir/templates/* \
              ~/.local/share/godot/templates/3.5.2.stable/
 
+      - name: Clean and rebuild
+        run: |
+          rm -rf .import
+          rm -rf .godot
+          rm -rf pong/
+          mkdir -p pong
+
       - name: Build HTML5 export with xvfb
         run: |
-          mkdir -p pong
           DISPLAY=:99 xvfb-run --server-args="-screen 0 1024x768x24" \
             godot-bin/Godot_v3.5.2-stable_linux_headless.64 \
             --path . --headless --export "HTML5" pong/index.html
