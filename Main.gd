@@ -8,8 +8,14 @@ var score1 = 0
 var score2 = 0
 var pad_speed = 400
 var ball_radius = 10
+var game_over = false
+var winner = ""
 
 func _process(delta):
+	if game_over:
+		update()
+		return
+	
 	# Player 1 movement (W/S keys)
 	if Input.is_action_pressed("move_up"):
 		pad1_pos.y -= pad_speed * delta
@@ -23,9 +29,11 @@ func _process(delta):
 		ball_velocity.y = -ball_velocity.y
 	if ball_position.x < ball_radius:
 		score2 += 1
+		check_win()
 		reset_ball()
 	if ball_position.x > 800 - ball_radius:
 		score1 += 1
+		check_win()
 		reset_ball()
 	
 	# Simple AI for pad2
@@ -43,11 +51,29 @@ func _process(delta):
 	
 	update()
 
+func check_win():
+	if score1 >= 11:
+		winner = "Player 1"
+		game_over = true
+	elif score2 >= 11:
+		winner = "Computer"
+		game_over = true
+
 func reset_ball():
 	ball_position = Vector2(400, 300)
 	ball_velocity = Vector2(400 * (1 if randf() > 0.5 else -1), 400 * (1 if randf() > 0.5 else -1))
 
 func _draw():
+	if game_over:
+		var msg = winner + " wins! " + str(score1) + " - " + str(score2)
+		draw_string(FontDB.find_matching_or_add("res://fonts/arial.ttf"), Vector2(120, 280), msg, -1, 40, 32, Color.yellow)
+		draw_string(FontDB.find_matching_or_add("res://fonts/arial.ttf"), Vector2(180, 330), "Press R to restart", -1, 30, 24, Color.white)
+		return
+	
+	# Draw scores
+	draw_string(FontDB.find_matching_or_add("res://fonts/arial.ttf"), Vector2(150, 50), str(score1), -1, 40, 32, Color.white)
+	draw_string(FontDB.find_matching_or_add("res://fonts/arial.ttf"), Vector2(550, 50), str(score2), -1, 40, 32, Color.white)
+	
 	# Draw ball
 	draw_circle(ball_position, ball_radius, Color.white)
 	# Draw paddles
