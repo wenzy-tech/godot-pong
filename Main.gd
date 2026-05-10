@@ -18,14 +18,12 @@ func _process(delta):
 		update()
 		return
 	
-	# Player 1 movement (W/S keys)
 	if Input.is_action_pressed("move_up"):
 		pad1_pos.y -= pad_speed * delta
 	if Input.is_action_pressed("move_down"):
 		pad1_pos.y += pad_speed * delta
 	pad1_pos.y = clamp(pad1_pos.y, 50, 550)
 	
-	# Ball movement
 	ball_position += ball_velocity * delta
 	if ball_position.y < ball_radius or ball_position.y > 600 - ball_radius:
 		ball_velocity.y = -ball_velocity.y
@@ -38,14 +36,12 @@ func _process(delta):
 		check_win()
 		reset_ball()
 	
-	# Simple AI for pad2
 	if ball_position.y < pad2_pos.y - 30:
 		pad2_pos.y -= pad_speed * 0.7 * delta
 	if ball_position.y > pad2_pos.y + 30:
 		pad2_pos.y += pad_speed * 0.7 * delta
 	pad2_pos.y = clamp(pad2_pos.y, 50, 550)
 	
-	# Ball-paddle collision
 	if ball_position.x < 50 and abs(ball_position.y - pad1_pos.y) < 60:
 		ball_velocity.x = abs(ball_velocity.x)
 	if ball_position.x > 750 and abs(ball_position.y - pad2_pos.y) < 60:
@@ -55,10 +51,10 @@ func _process(delta):
 
 func check_win():
 	if score1 >= 11:
-		winner = "Left"
+		winner = "LEFT"
 		game_over = true
 	elif score2 >= 11:
-		winner = "Right"
+		winner = "RIGHT"
 		game_over = true
 
 func restart_game():
@@ -73,21 +69,31 @@ func reset_ball():
 	ball_velocity = Vector2(400 * (1 if randf() > 0.5 else -1), 400 * (1 if randf() > 0.5 else -1))
 
 func _draw():
+	# Draw center dashed line
+	for i in range(0, 600, 40):
+		draw_rect(Rect2(398, i, 4, 20), Color(0.3, 0.3, 0.3))
+	
 	if game_over:
-		var msg = winner + " Player Wins!"
-		draw_string(FontDB.find_matching_or_add("res://fonts/arial.ttf"), Vector2(150, 280), msg, -1, 40, 32, Color.yellow)
-		draw_string(FontDB.find_matching_or_add("res://fonts/arial.ttf"), Vector2(200, 330), "Press SPACE to restart", -1, 30, 24, Color.white)
+		# Draw winner banner background
+		draw_rect(Rect2(200, 220, 400, 150), Color(0, 0, 0, 0.7))
+		draw_rect(Rect2(200, 220, 400, 150), Color.yellow, false, 2)
+		# Draw winning side indicator
+		if winner == "LEFT":
+			draw_circle(Vector2(100, 295), 20, Color.green)
+		else:
+			draw_circle(Vector2(700, 295), 20, Color.green)
 		return
 	
-	# Draw center scoreboard
-	var score_text = str(score1) + "  -  " + str(score2)
-	draw_string(FontDB.find_matching_or_add("res://fonts/arial.ttf"), Vector2(320, 50), score_text, -1, 40, 32, Color.white)
+	# Draw scores using big circles (score pips)
+	# Left score
+	for i in range(score1):
+		draw_circle(Vector2(100 + i * 25, 30), 10, Color.white)
+	# Right score
+	for i in range(score2):
+		draw_circle(Vector2(700 - i * 25, 30), 10, Color.white)
 	
 	# Draw ball
 	draw_circle(ball_position, ball_radius, Color.white)
 	# Draw paddles
 	draw_rect(Rect2(10, pad1_pos.y - 50, 20, 100), Color.white)
 	draw_rect(Rect2(770, pad2_pos.y - 50, 20, 100), Color.white)
-	# Draw center line
-	for i in range(0, 600, 40):
-		draw_rect(Rect2(398, i, 4, 20), Color(0.3, 0.3, 0.3))
