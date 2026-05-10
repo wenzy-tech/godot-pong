@@ -10,7 +10,6 @@ var pad_speed = 400
 var ball_radius = 10
 var game_over = false
 var winner = ""
-
 func _process(delta):
 	if game_over:
 		if Input.is_action_pressed("ui_accept"):
@@ -73,22 +72,9 @@ func _draw():
 	for i in range(0, 600, 40):
 		draw_rect(Rect2(398, i, 4, 20), Color(0.3, 0.3, 0.3))
 	
-	if game_over:
-		# Draw winner banner background
-		draw_rect(Rect2(200, 220, 400, 150), Color(0, 0, 0, 0.7))
-		draw_rect(Rect2(200, 220, 400, 150), Color.yellow, false, 2)
-		# Draw winning side indicator
-		if winner == "LEFT":
-			draw_circle(Vector2(100, 295), 20, Color.green)
-		else:
-			draw_circle(Vector2(700, 295), 20, Color.green)
-		return
-	
 	# Draw scores using big circles (score pips)
-	# Left score
 	for i in range(score1):
 		draw_circle(Vector2(100 + i * 25, 30), 10, Color.white)
-	# Right score
 	for i in range(score2):
 		draw_circle(Vector2(700 - i * 25, 30), 10, Color.white)
 	
@@ -97,3 +83,14 @@ func _draw():
 	# Draw paddles
 	draw_rect(Rect2(10, pad1_pos.y - 50, 20, 100), Color.white)
 	draw_rect(Rect2(770, pad2_pos.y - 50, 20, 100), Color.white)
+	
+	if game_over:
+		# Draw winner banner background
+		draw_rect(Rect2(200, 220, 400, 150), Color(0, 0, 0, 0.7))
+		# Draw border
+		draw_rect(Rect2(200, 220, 400, 150), Color.yellow, false, 2)
+		# Draw winning side indicator
+		if winner == "LEFT":
+			draw_circle(Vector2(100, 295), 20, Color.green)
+		else:
+			draw_circle(Vector2(700, 295), 20, Color.green)
