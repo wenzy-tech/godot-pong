@@ -15,16 +15,26 @@ onready var winner_label = get_node("WinnerLabel")
 onready var restart_label = get_node("RestartLabel")
 
 func _ready():
-	winner_label.visible = false
-	restart_label.visible = false
-	restart_label.text = "Press SPACE to restart"
-	print("DEBUG: _ready called, labels initialized, version 4")
+	print("DEBUG _ready: winner_label=", winner_label, " restart_label=", restart_label)
+	if winner_label:
+		winner_label.visible = false
+		winner_label.text = "LEFT WINS!"
+	if restart_label:
+		restart_label.visible = false
+		restart_label.text = "Press SPACE to restart"
+	print("DEBUG: _ready done, version 5")
 
 func _process(delta):
 	if game_over:
-		winner_label.visible = true
-		restart_label.visible = true
-		winner_label.text = winner
+		print("DEBUG _process game_over: winner=", winner)
+		if winner_label:
+			winner_label.visible = true
+			winner_label.text = winner
+			print("DEBUG: set winner_label text to: ", winner_label.text)
+		else:
+			print("DEBUG ERROR: winner_label is null!")
+		if restart_label:
+			restart_label.visible = true
 		if Input.is_action_pressed("ui_accept"):
 			restart_game()
 		update()
@@ -79,8 +89,10 @@ func restart_game():
 	score2 = 0
 	game_over = false
 	winner = ""
-	winner_label.visible = false
-	restart_label.visible = false
+	if winner_label:
+		winner_label.visible = false
+	if restart_label:
+		restart_label.visible = false
 	reset_ball()
 
 func reset_ball():
@@ -88,19 +100,10 @@ func reset_ball():
 	ball_velocity = Vector2(400 * (1 if randf() > 0.5 else -1), 400 * (1 if randf() > 0.5 else -1))
 
 func _draw():
-	# Version 4: game over screen turns RED background to confirm game_over state is reached
-	if game_over:
-		# Red background when game over
-		draw_rect(Rect2(0, 0, 800, 600), Color(0.6, 0, 0, 1))
-		# Draw winner text in white in the center
-		winner_label.text = winner
-		# Also draw manually in _draw as fallback
-		return
-	
-	# Normal game: show 3 yellow circles (v4 indicator)
-	draw_circle(Vector2(760, 20), 5, Color(1, 0.84, 0, 1))   # yellow
-	draw_circle(Vector2(775, 20), 5, Color(1, 0.84, 0, 1))   # yellow
-	draw_circle(Vector2(790, 20), 5, Color(1, 0.84, 0, 1))   # yellow
+	# V5 indicator: 3 yellow circles
+	draw_circle(Vector2(760, 20), 5, Color(1, 0.84, 0, 1))
+	draw_circle(Vector2(775, 20), 5, Color(1, 0.84, 0, 1))
+	draw_circle(Vector2(790, 20), 5, Color(1, 0.84, 0, 1))
 	
 	for i in range(0, 600, 40):
 		draw_rect(Rect2(398, i, 4, 20), Color(0.3, 0.3, 0.3))
