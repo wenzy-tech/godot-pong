@@ -34,6 +34,17 @@ var shake_amount = 0.0
 var shake_offset_x = 0.0
 var shake_offset_y = 0.0
 
+# Particle system (fixed arrays for Godot HTML5 stability)
+var hit_particles_pos_x = []
+var hit_particles_pos_y = []
+var hit_particles_vel_x = []
+var hit_particles_vel_y = []
+var hit_particles_life = []
+var hit_particles_color_r = []
+var hit_particles_color_g = []
+var hit_particles_color_b = []
+var MAX_PARTICLES = 50
+
 onready var hit_sound = $hit_sound
 onready var score_sound = $score_sound
 onready var powerup_sound = $powerup_sound
@@ -66,7 +77,44 @@ func _ready():
 	_custom_font = DynamicFont.new()
 	_custom_font.font_data = font_data
 	_custom_font.use_filter = true
-	print("DEBUG V15: _ready done")
+	
+	# Init particle arrays
+	for i in range(MAX_PARTICLES):
+		hit_particles_pos_x.append(0.0)
+		hit_particles_pos_y.append(0.0)
+		hit_particles_vel_x.append(0.0)
+		hit_particles_vel_y.append(0.0)
+		hit_particles_life.append(0.0)
+		hit_particles_color_r.append(1.0)
+		hit_particles_color_g.append(1.0)
+		hit_particles_color_b.append(1.0)
+
+func spawn_hit_particles(x, y, r, g, b):
+	var slot = -1
+	for i in range(MAX_PARTICLES):
+		if hit_particles_life[i] <= 0:
+			slot = i
+			break
+	if slot < 0:
+		slot = 0
+	
+	var angle = randf() * TAU
+	var speed = 100.0 + randf() * 150.0
+	hit_particles_pos_x[slot] = x
+	hit_particles_pos_y[slot] = y
+	hit_particles_vel_x[slot] = cos(angle) * speed
+	hit_particles_vel_y[slot] = sin(angle) * speed
+	hit_particles_life[slot] = 0.3 + randf() * 0.2
+	hit_particles_color_r[slot] = r
+	hit_particles_color_g[slot] = g
+	hit_particles_color_b[slot] = b
+
+func update_particles(delta):
+	for i in range(MAX_PARTICLES):
+		if hit_particles_life[i] > 0:
+			hit_particles_pos_x[i] += hit_particles_vel_x[i] * delta
+			hit_particles_pos_y[i] += hit_particles_vel_y[i] * delta
+			hit_particles_life[i] -= delta
 
 func _process(delta):
 	# Screen shake decay
@@ -77,8 +125,8 @@ func _process(delta):
 			shake_offset_x = 0
 			shake_offset_y = 0
 		else:
-			shake_offset_x = rand_range(-1, 1) * shake_amount
-			shake_offset_y = rand_range(-1, 1) * shake_amount
+			shake_offset_x = randf() * shake_amount * 2.0 - shake_amount
+			shake_offset_y = randf() * shake_amount * 2.0 - shake_amount
 	
 	if game_over:
 		winner_label.visible = true
@@ -100,6 +148,7 @@ func _process(delta):
 	if ball_position.y < ball_radius or ball_position.y > 600 - ball_radius:
 		wall_sound.play()
 		ball_velocity.y = -ball_velocity.y
+		spawn_hit_particles(ball_position.x, ball_position.y, 0.0, 0.8, 0.6)
 	
 	if ball_position.x < ball_radius:
 		var pts = get_score_points(pad1_combo)
@@ -109,6 +158,8 @@ func _process(delta):
 		pad2_combo = 0
 		score_sound.play()
 		shake_amount = 8.0
+		for i in range(8):
+			spawn_hit_particles(ball_position.x, ball_position.y, 1.0, 0.3, 0.5)
 		check_win()
 		reset_ball()
 	
@@ -120,6 +171,8 @@ func _process(delta):
 		pad2_combo = 0
 		score_sound.play()
 		shake_amount = 8.0
+		for i in range(8):
+			spawn_hit_particles(ball_position.x, ball_position.y, 0.2, 0.6, 1.0)
 		check_win()
 		reset_ball()
 	
@@ -136,6 +189,8 @@ func _process(delta):
 		combo_timer = 0.0
 		hit_sound.play()
 		shake_amount = 4.0
+		for i in range(4):
+			spawn_hit_particles(ball_position.x, ball_position.y, 0.2, 0.6, 1.0)
 	
 	if ball_position.x > 750 and abs(ball_position.y - pad2_pos.y) < pad2_height * 0.5:
 		ball_velocity.x = -abs(ball_velocity.x)
@@ -144,6 +199,8 @@ func _process(delta):
 		combo_timer = 0.0
 		hit_sound.play()
 		shake_amount = 4.0
+		for i in range(4):
+			spawn_hit_particles(ball_position.x, ball_position.y, 1.0, 0.3, 0.5)
 	
 	powerup_spawn_timer += delta
 	if powerup_spawn_timer >= powerup_spawn_interval:
@@ -185,6 +242,7 @@ func _process(delta):
 				ball_radius = 18.0
 			powerup_active = false
 	
+	update_particles(delta)
 	update()
 
 func get_score_points(combo):
@@ -221,6 +279,8 @@ func restart_game():
 	shake_amount = 0
 	shake_offset_x = 0
 	shake_offset_y = 0
+	for i in range(MAX_PARTICLES):
+		hit_particles_life[i] = 0.0
 	winner_label.visible = false
 	restart_label.visible = false
 	reset_ball()
@@ -243,11 +303,10 @@ func get_powerup_color():
 	return COLOR_POWERUP_BIG
 
 func _draw():
-	# Offset for screen shake
 	var ox = shake_offset_x
 	var oy = shake_offset_y
 	
-	# Background - dark blue/purple gradient
+	# Background
 	draw_rect(Rect2(0, 0, 800, 600), Color(0.05, 0.05, 0.12))
 	
 	# Grid lines
@@ -256,26 +315,33 @@ func _draw():
 	for y in range(0, 600, 50):
 		draw_line(Vector2(0, y), Vector2(800, y), Color(0.1, 0.15, 0.3, 0.5), 1.0)
 	
-	# Center line
+	# Center line dashes
 	for i in range(0, 600, 20):
 		draw_rect(Rect2(398, i + 5, 4, 10), Color(0.3, 0.5, 0.8, 0.4))
 	
-	# Ball glow (outer)
+	# Particles
+	for i in range(MAX_PARTICLES):
+		if hit_particles_life[i] > 0:
+			var alpha = hit_particles_life[i] / 0.5
+			var sz = 4.0 * alpha
+			var px = hit_particles_pos_x[i] + ox
+			var py = hit_particles_pos_y[i] + oy
+			draw_circle(Vector2(px, py), sz, Color(hit_particles_color_r[i], hit_particles_color_g[i], hit_particles_color_b[i], alpha))
+	
+	# Ball glow
 	draw_circle(Vector2(ball_position.x + ox, ball_position.y + oy), ball_radius * 1.8, Color(0.0, 0.8, 0.6, 0.2))
-	# Ball glow (inner)
 	draw_circle(Vector2(ball_position.x + ox, ball_position.y + oy), ball_radius * 1.4, Color(0.0, 1.0, 0.8, 0.3))
-	# Ball core
 	draw_circle(Vector2(ball_position.x + ox, ball_position.y + oy), ball_radius, COLOR_BALL)
 	
-	# Left paddle with glow
+	# Left paddle glow
 	draw_rect(Rect2(10 + ox, pad1_pos.y - pad1_height * 0.5 + oy, pad_width, pad1_height), Color(COLOR_PAD1.r, COLOR_PAD1.g, COLOR_PAD1.b, 0.35), true, 6)
 	draw_rect(Rect2(10 + ox, pad1_pos.y - pad1_height * 0.5 + oy, pad_width, pad1_height), COLOR_PAD1)
 	
-	# Right paddle with glow
+	# Right paddle glow
 	draw_rect(Rect2(770 + ox, pad2_pos.y - pad2_height * 0.5 + oy, pad_width, pad2_height), Color(COLOR_PAD2.r, COLOR_PAD2.g, COLOR_PAD2.b, 0.35), true, 6)
 	draw_rect(Rect2(770 + ox, pad2_pos.y - pad2_height * 0.5 + oy, pad_width, pad2_height), COLOR_PAD2)
 	
-	# Score dots with glow
+	# Score dots
 	for i in range(score1):
 		draw_circle(Vector2(100 + i * 25 + ox, 30 + oy), 10, Color(COLOR_PAD1.r, COLOR_PAD1.g, COLOR_PAD1.b, 0.3))
 		draw_circle(Vector2(100 + i * 25 + ox, 30 + oy), 6, COLOR_PAD1)
@@ -291,7 +357,7 @@ func _draw():
 			txt = txt + " [" + str(pts) + " PTS]"
 		draw_string(_custom_font, Vector2(310 + ox, 570 + oy), txt, COLOR_COMBO)
 	
-	# Power-up if active
+	# Power-up
 	if powerup_active and _custom_font != null:
 		var col = get_powerup_color()
 		draw_circle(Vector2(powerup_position.x + ox, powerup_position.y + oy), powerup_radius * 1.5 * powerup_pulse, Color(col.r, col.g, col.b, 0.3))
