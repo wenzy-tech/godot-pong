@@ -98,7 +98,7 @@ func spawn_hit_particles(x, y, r, g, b):
 	if slot < 0:
 		slot = 0
 	
-	var angle = randf() * TAU
+	var angle = randf() * 2.0 * PI
 	var speed = 100.0 + randf() * 150.0
 	hit_particles_pos_x[slot] = x
 	hit_particles_pos_y[slot] = y
