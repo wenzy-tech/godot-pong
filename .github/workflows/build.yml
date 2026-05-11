@@ -46,7 +46,7 @@ jobs:
         run: |
           DISPLAY=:99 xvfb-run --server-args="-screen 0 1024x768x24" \
             godot-bin/Godot_v4.6.2-stable_linux.x86_64 \
-            --path . --headless --export-release "HTML5" pong/index.html
+            --path . --headless --export-release "Web" pong/index.html
 
       - name: Verify build output
         run: |
