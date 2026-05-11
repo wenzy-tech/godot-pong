@@ -1,0 +1,50 @@
+[gd_resource type="CPUParticles2D" format=2]
+
+[sub_resource type="ParticlesMaterial" id=1]
+trail_divisor = 1
+direction = Vector3(0, 0, 0)
+spread = 180.0
+gravity = Vector3(0, 0, 0)
+gravity_vec = Vector3(0, -1, 0)
+initial_velocity = 200.0
+initial_velocity_random = 0.4
+angular_velocity = 0.0
+angular_velocity_random = 0.0
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+linear_accel = 0.0
+linear_accel_random = 0.0
+radial_accel = 0.0
+radial_accel_random = 0.0
+tangential_accel = 0.0
+tangential_accel_random = 0.0
+damping = 0.0
+damping_random = 0.0
+angle = 0.0
+angle_random = 0.0
+scale = 1.0
+scale_random = 0.0
+color = Color(1, 0.5, 0, 1)
+hue_variation = 0.0
+hue_variation_random = 0.0
+saturation_variation = 0.0
+saturation_variation_random = 0.0
+lifetime_randomness = 0.0
+anim_speed = 0.0
+anim_speed_random = 0.0
+anim_offset = 0.0
+anim_offset_random = 0.0
+param_visibility = false
+
+[resource]
+particles = 30
+lifetime = 0.5
+one_shot = true
+preprocess = 0.0
+explosiveness = 0.9
+randomness = 0.4
+fixed_fps = 0
+fract_delta = true
+local_coords = false
+draw_order = 0
+process_material = SubResource(1)
