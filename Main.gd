@@ -28,14 +28,9 @@ var powerup_pulse = 0.0
 
 var pad1_height = 100.0
 var pad2_height = 100.0
-var pad_width = 20.0
 
-var shake_amount = 0.0
-var shake_x = 0.0
-var shake_y = 0.0
-
-# Particle system - simple fixed arrays
-const MAX_PARTICLES = 30
+# Particles - simple fixed array
+var particle_count = 0
 var particle_x = []
 var particle_y = []
 var particle_vx = []
@@ -44,7 +39,6 @@ var particle_life = []
 var particle_r = []
 var particle_g = []
 var particle_b = []
-var particle_count = 0
 
 onready var hit_sound = $hit_sound
 onready var score_sound = $score_sound
@@ -57,17 +51,13 @@ onready var restart_label = get_node("RestartLabel")
 var _custom_font = null
 
 const POWERUP_TYPES = ["speed_up", "slow", "grow_left", "shrink_right", "shrink_ai", "big_ball"]
-const C_BALL = Color(0.0, 1.0, 0.8)
-const C_PAD1 = Color(0.2, 0.6, 1.0)
-const C_PAD2 = Color(1.0, 0.3, 0.5)
-const C_COMBO = Color(1.0, 0.3, 0.0)
 
 func _ready():
 	winner_label.visible = false
 	restart_label.visible = false
 	
-	# Initialize particle arrays
-	for i in range(MAX_PARTICLES):
+	# Init particles
+	for i in range(20):
 		particle_x.append(0.0)
 		particle_y.append(0.0)
 		particle_vx.append(0.0)
@@ -76,58 +66,41 @@ func _ready():
 		particle_r.append(1.0)
 		particle_g.append(1.0)
 		particle_b.append(1.0)
-	particle_count = 0
 	
-	var font_data = DynamicFontData.new()
-	font_data.font_path = "res://font.ttf"
-	font_data.size = 24
+	# Init font
+	var fd = DynamicFontData.new()
+	fd.font_path = "res://font.ttf"
+	fd.size = 24
 	_custom_font = DynamicFont.new()
-	_custom_font.font_data = font_data
-	_custom_font.use_filter = true
-	print("DEBUG V16: _ready done, particles ready")
+	_custom_font.font_data = fd
 
-func add_particle(x, y, r, g, b):
-	if particle_count >= MAX_PARTICLES:
+func spawn_particle(x, y, r, g, b):
+	if particle_count >= 20:
 		particle_count = 0
-	var i = particle_count
-	particle_x[i] = x
-	particle_y[i] = y
-	var angle = rand_range(0, 6.283)
-	var speed = rand_range(80, 200)
-	particle_vx[i] = cos(angle) * speed
-	particle_vy[i] = sin(angle) * speed
-	particle_life[i] = 0.4
-	particle_r[i] = r
-	particle_g[i] = g
-	particle_b[i] = b
+	particle_x[particle_count] = x
+	particle_y[particle_count] = y
+	particle_vx[particle_count] = 150.0
+	particle_vy[particle_count] = 0.0
+	particle_life[particle_count] = 0.3
+	particle_r[particle_count] = r
+	particle_g[particle_count] = g
+	particle_b[particle_count] = b
 	particle_count += 1
 
-func update_particles(delta):
-	for i in range(MAX_PARTICLES):
+func update_particles(dt):
+	for i in range(20):
 		if particle_life[i] > 0:
-			particle_x[i] += particle_vx[i] * delta
-			particle_y[i] += particle_vy[i] * delta
-			particle_life[i] -= delta
+			particle_x[i] += particle_vx[i] * dt
+			particle_y[i] += particle_vy[i] * dt
+			particle_life[i] -= dt
 
 func _process(delta):
-	# Screen shake decay
-	if shake_amount > 0:
-		shake_amount *= 0.85
-		if shake_amount < 0.5:
-			shake_amount = 0
-			shake_x = 0
-			shake_y = 0
-		else:
-			shake_x = rand_range(-1, 1) * shake_amount
-			shake_y = rand_range(-1, 1) * shake_amount
-	
 	if game_over:
 		winner_label.visible = true
 		restart_label.visible = true
 		winner_label.text = winner
 		if Input.is_action_pressed("ui_accept"):
 			restart_game()
-		update_particles(delta)
 		update()
 		return
 	
@@ -142,29 +115,25 @@ func _process(delta):
 	if ball_position.y < ball_radius or ball_position.y > 600 - ball_radius:
 		wall_sound.play()
 		ball_velocity.y = -ball_velocity.y
-		add_particle(ball_position.x, ball_position.y < ball_radius * 2 ? ball_radius : 600 - ball_radius, 0.0, 0.8, 0.6)
+		spawn_particle(ball_position.x, ball_position.y < ball_radius * 2 ? ball_radius : 600 - ball_radius, 0.0, 0.8, 0.6)
 	
 	if ball_position.x < ball_radius:
-		var pts = get_score_points(pad1_combo)
-		score2 += pts
+		score2 += get_score_points(pad1_combo)
 		combo_display = pad1_combo
 		pad1_combo = 0
 		pad2_combo = 0
 		score_sound.play()
-		shake_amount = 8.0
-		add_particle(ball_position.x, ball_position.y, 1.0, 0.3, 0.5)
+		spawn_particle(ball_position.x, ball_position.y, 1.0, 0.3, 0.5)
 		check_win()
 		reset_ball()
 	
 	if ball_position.x > 800 - ball_radius:
-		var pts = get_score_points(pad2_combo)
-		score1 += pts
+		score1 += get_score_points(pad2_combo)
 		combo_display = pad2_combo
 		pad1_combo = 0
 		pad2_combo = 0
 		score_sound.play()
-		shake_amount = 8.0
-		add_particle(ball_position.x, ball_position.y, 0.2, 0.6, 1.0)
+		spawn_particle(ball_position.x, ball_position.y, 0.2, 0.6, 1.0)
 		check_win()
 		reset_ball()
 	
@@ -180,8 +149,7 @@ func _process(delta):
 		combo_display = pad1_combo
 		combo_timer = 0.0
 		hit_sound.play()
-		shake_amount = 4.0
-		add_particle(ball_position.x, ball_position.y, 0.2, 0.6, 1.0)
+		spawn_particle(ball_position.x, ball_position.y, 0.2, 0.6, 1.0)
 	
 	if ball_position.x > 750 and abs(ball_position.y - pad2_pos.y) < pad2_height * 0.5:
 		ball_velocity.x = -abs(ball_velocity.x)
@@ -189,13 +157,12 @@ func _process(delta):
 		combo_display = pad2_combo
 		combo_timer = 0.0
 		hit_sound.play()
-		shake_amount = 4.0
-		add_particle(ball_position.x, ball_position.y, 1.0, 0.3, 0.5)
+		spawn_particle(ball_position.x, ball_position.y, 1.0, 0.3, 0.5)
 	
 	powerup_spawn_timer += delta
 	if powerup_spawn_timer >= powerup_spawn_interval:
 		powerup_type = POWERUP_TYPES[randi() % POWERUP_TYPES.size()]
-		powerup_position = Vector2(250 + randi() % 300, 150 + randi() % 300)
+		powerup_position = Vector2(300, 300)
 		powerup_active = true
 		powerup_timer = 0.0
 		powerup_pulse = 1.0
@@ -242,19 +209,6 @@ func get_score_points(combo):
 		return 2
 	return 1
 
-func get_powerup_color():
-	if powerup_type == "speed_up":
-		return Color(1.0, 0.2, 0.2)
-	elif powerup_type == "slow":
-		return Color(0.2, 0.5, 1.0)
-	elif powerup_type == "grow_left":
-		return Color(0.2, 1.0, 0.2)
-	elif powerup_type == "shrink_right" or powerup_type == "shrink_ai":
-		return Color(1.0, 0.8, 0.2)
-	elif powerup_type == "big_ball":
-		return Color(1.0, 1.0, 0.2)
-	return Color(1.0, 1.0, 1.0)
-
 func check_win():
 	if score1 >= 11:
 		winner = "Left Player Wins!"
@@ -279,10 +233,7 @@ func restart_game():
 	pad1_height = 100.0
 	pad2_height = 100.0
 	ball_radius = 10.0
-	shake_amount = 0
-	shake_x = 0
-	shake_y = 0
-	for i in range(MAX_PARTICLES):
+	for i in range(20):
 		particle_life[i] = 0.0
 	winner_label.visible = false
 	restart_label.visible = false
@@ -290,12 +241,11 @@ func restart_game():
 
 func reset_ball():
 	ball_position = Vector2(400, 300)
-	ball_velocity = Vector2(400 * (1 if randf() > 0.5 else -1), 400 * (1 if randf() > 0.5 else -1))
+	var sign_x = 1 if randf() > 0.5 else -1
+	var sign_y = 1 if randf() > 0.5 else -1
+	ball_velocity = Vector2(400.0 * sign_x, 400.0 * sign_y)
 
 func _draw():
-	var ox = shake_x
-	var oy = shake_y
-	
 	# Background
 	draw_rect(Rect2(0, 0, 800, 600), Color(0.05, 0.05, 0.12))
 	
@@ -310,45 +260,52 @@ func _draw():
 		draw_rect(Rect2(398, i + 5, 4, 10), Color(0.3, 0.5, 0.8, 0.4))
 	
 	# Particles
-	for i in range(MAX_PARTICLES):
+	for i in range(20):
 		if particle_life[i] > 0:
-			var alpha = particle_life[i] / 0.4
-			var size = 3.0 * alpha
-			draw_circle(Vector2(particle_x[i] + ox, particle_y[i] + oy), size, Color(particle_r[i], particle_g[i], particle_b[i], alpha))
+			var alpha = particle_life[i] / 0.3
+			var sz = 3.0 * alpha
+			draw_circle(Vector2(particle_x[i], particle_y[i]), sz, Color(particle_r[i], particle_g[i], particle_b[i], alpha))
 	
 	# Ball glow
-	draw_circle(Vector2(ball_position.x + ox, ball_position.y + oy), ball_radius * 1.8, Color(0.0, 0.8, 0.6, 0.2))
-	draw_circle(Vector2(ball_position.x + ox, ball_position.y + oy), ball_radius * 1.4, Color(0.0, 1.0, 0.8, 0.3))
-	draw_circle(Vector2(ball_position.x + ox, ball_position.y + oy), ball_radius, C_BALL)
+	draw_circle(ball_position, ball_radius * 1.8, Color(0.0, 0.8, 0.6, 0.2))
+	draw_circle(ball_position, ball_radius * 1.4, Color(0.0, 1.0, 0.8, 0.3))
+	draw_circle(ball_position, ball_radius, Color(0.0, 1.0, 0.8))
 	
-	# Paddles with glow
-	draw_rect(Rect2(10 + ox, pad1_pos.y - pad1_height * 0.5 + oy, pad_width, pad1_height), Color(C_PAD1.r, C_PAD1.g, C_PAD1.b, 0.35), true, 6)
-	draw_rect(Rect2(10 + ox, pad1_pos.y - pad1_height * 0.5 + oy, pad_width, pad1_height), C_PAD1)
+	# Paddles
+	draw_rect(Rect2(10, pad1_pos.y - pad1_height * 0.5, 20, pad1_height), Color(0.2, 0.6, 1.0, 0.35), true, 6)
+	draw_rect(Rect2(10, pad1_pos.y - pad1_height * 0.5, 20, pad1_height), Color(0.2, 0.6, 1.0))
+	draw_rect(Rect2(770, pad2_pos.y - pad2_height * 0.5, 20, pad2_height), Color(1.0, 0.3, 0.5, 0.35), true, 6)
+	draw_rect(Rect2(770, pad2_pos.y - pad2_height * 0.5, 20, pad2_height), Color(1.0, 0.3, 0.5))
 	
-	draw_rect(Rect2(770 + ox, pad2_pos.y - pad2_height * 0.5 + oy, pad_width, pad2_height), Color(C_PAD2.r, C_PAD2.g, C_PAD2.b, 0.35), true, 6)
-	draw_rect(Rect2(770 + ox, pad2_pos.y - pad2_height * 0.5 + oy, pad_width, pad2_height), C_PAD2)
-	
-	# Score dots with glow
+	# Score dots
 	for i in range(score1):
-		draw_circle(Vector2(100 + i * 25 + ox, 30 + oy), 10, Color(C_PAD1.r, C_PAD1.g, C_PAD1.b, 0.3))
-		draw_circle(Vector2(100 + i * 25 + ox, 30 + oy), 6, C_PAD1)
+		draw_circle(Vector2(100 + i * 25, 30), 10, Color(0.2, 0.6, 1.0, 0.3))
+		draw_circle(Vector2(100 + i * 25, 30), 6, Color(0.2, 0.6, 1.0))
 	for i in range(score2):
-		draw_circle(Vector2(700 - i * 25 + ox, 30 + oy), 10, Color(C_PAD2.r, C_PAD2.g, C_PAD2.b, 0.3))
-		draw_circle(Vector2(700 - i * 25 + ox, 30 + oy), 6, C_PAD2)
+		draw_circle(Vector2(700 - i * 25, 30), 10, Color(1.0, 0.3, 0.5, 0.3))
+		draw_circle(Vector2(700 - i * 25, 30), 6, Color(1.0, 0.3, 0.5))
 	
 	# Combo
 	if combo_display > 1 and _custom_font != null:
-		var pts = get_score_points(combo_display)
 		var txt = "x" + str(combo_display)
+		var pts = get_score_points(combo_display)
 		if pts > 1:
 			txt = txt + " [" + str(pts) + " PTS]"
-		draw_string(_custom_font, Vector2(310 + ox, 570 + oy), txt, C_COMBO)
+		draw_string(_custom_font, Vector2(310, 570), txt, Color(1.0, 0.3, 0.0))
 	
 	# Power-up
 	if powerup_active and _custom_font != null:
-		var col = get_powerup_color()
-		draw_circle(Vector2(powerup_position.x + ox, powerup_position.y + oy), powerup_radius * 1.5 * powerup_pulse, Color(col.r, col.g, col.b, 0.3))
-		draw_circle(Vector2(powerup_position.x + ox, powerup_position.y + oy), powerup_radius, col)
+		var col = Color(1.0, 0.2, 0.2)
+		if powerup_type == "slow":
+			col = Color(0.2, 0.5, 1.0)
+		elif powerup_type == "grow_left":
+			col = Color(0.2, 1.0, 0.2)
+		elif powerup_type == "shrink_right" or powerup_type == "shrink_ai":
+			col = Color(1.0, 0.8, 0.2)
+		elif powerup_type == "big_ball":
+			col = Color(1.0, 1.0, 0.2)
+		draw_circle(powerup_position, powerup_radius * 1.5 * powerup_pulse, Color(col.r, col.g, col.b, 0.3))
+		draw_circle(powerup_position, powerup_radius, col)
 		var label = "?"
 		if powerup_type == "speed_up":
 			label = "FAST"
@@ -360,16 +317,15 @@ func _draw():
 			label = "SHRINK"
 		elif powerup_type == "big_ball":
 			label = "BIG"
-		draw_string(_custom_font, Vector2(powerup_position.x - 30 + ox, powerup_position.y - 25 + oy), label, Color.white)
+		draw_string(_custom_font, powerup_position + Vector2(-30, -25), label, Color.white)
 		var remaining = powerup_duration - powerup_timer
-		var bar_w = (remaining / powerup_duration) * 50
-		draw_rect(Rect2(powerup_position.x - 25 + ox, powerup_position.y + 20 + oy, 50, 4), Color(0.2, 0.2, 0.2, 0.8))
-		draw_rect(Rect2(powerup_position.x - 25 + ox, powerup_position.y + 20 + oy, bar_w, 4), Color(0, 1, 0.4))
+		draw_rect(Rect2(powerup_position.x - 25, powerup_position.y + 20, 50, 4), Color(0.2, 0.2, 0.2, 0.8))
+		draw_rect(Rect2(powerup_position.x - 25, powerup_position.y + 20, (remaining / powerup_duration) * 50, 4), Color(0, 1, 0.4))
 	
 	# Game over
 	if game_over:
-		draw_rect(Rect2(150 + ox, 150 + oy, 500, 300), Color(0, 0, 0, 0.85))
-		draw_rect(Rect2(150 + ox, 150 + oy, 500, 300), Color(1, 0.84, 0), false, 3)
+		draw_rect(Rect2(150, 150, 500, 300), Color(0, 0, 0, 0.85))
+		draw_rect(Rect2(150, 150, 500, 300), Color(1, 0.84, 0), false, 3)
 		if _custom_font != null:
-			draw_string(_custom_font, Vector2(180 + ox, 260 + oy), winner, Color(1, 0.84, 0))
-			draw_string(_custom_font, Vector2(200 + ox, 330 + oy), "Press SPACE to restart", Color(0.7, 0.7, 0.7))
+			draw_string(_custom_font, Vector2(180, 260), winner, Color(1, 0.84, 0))
+			draw_string(_custom_font, Vector2(200, 330), "Press SPACE to restart", Color(0.7, 0.7, 0.7))
