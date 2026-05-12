@@ -41,9 +41,6 @@ var particle_r = []
 var particle_g = []
 var particle_b = []
 
-onready var combo_label = $ComboLabel
-onready var powerup_label = $PowerupLabel
-
 const POWERUP_TYPES = ["speed_up", "slow", "grow_left", "shrink_right", "shrink_ai", "big_ball"]
 
 func _ready():
@@ -56,11 +53,6 @@ func _ready():
 		particle_r.append(1.0)
 		particle_g.append(1.0)
 		particle_b.append(1.0)
-	
-	if combo_label:
-		combo_label.visible = false
-	if powerup_label:
-		powerup_label.visible = false
 
 func spawn_particle(x, y, r, g, b):
 	var slot = -1
@@ -180,36 +172,6 @@ func _process(delta):
 				ball_radius = 18.0
 			powerup_active = false
 	
-	# Update UI labels
-	if combo_label:
-		if combo_display > 1:
-			var pts = get_score_points(combo_display)
-			var txt = "x" + str(combo_display)
-			if pts > 1:
-				txt = txt + " [" + str(pts) + "P]"
-			combo_label.text = txt
-			combo_label.visible = true
-		else:
-			combo_label.visible = false
-	
-	if powerup_label:
-		if powerup_active:
-			var label = powerup_type
-			if powerup_type == "grow_left":
-				label = "GROW"
-			elif powerup_type == "shrink_right" or powerup_type == "shrink_ai":
-				label = "SHRINK"
-			elif powerup_type == "speed_up":
-				label = "FAST"
-			elif powerup_type == "slow":
-				label = "SLOW"
-			elif powerup_type == "big_ball":
-				label = "BIG"
-			powerup_label.text = label
-			powerup_label.visible = true
-		else:
-			powerup_label.visible = false
-	
 	update_particles(delta)
 	queue_redraw()
 
@@ -223,6 +185,17 @@ func get_score_points(combo):
 func reset_ball():
 	ball_position = Vector2(400, 300)
 	ball_velocity = Vector2(400 * (1 if randf() > 0.5 else -1), 400 * (1 if randf() > 0.5 else -1))
+
+func get_powerup_color():
+	if powerup_type == "speed_up":
+		return Color(1.0, 0.2, 0.2)
+	elif powerup_type == "slow":
+		return Color(0.2, 0.5, 1.0)
+	elif powerup_type == "grow_left":
+		return Color(0.2, 1.0, 0.2)
+	elif powerup_type == "shrink_right" or powerup_type == "shrink_ai":
+		return Color(1.0, 0.8, 0.2)
+	return Color(1.0, 1.0, 0.2)
 
 func _draw():
 	draw_rect(Rect2(0, 0, 800, 600), Color(0.05, 0.05, 0.12))
@@ -258,19 +231,8 @@ func _draw():
 		draw_circle(Vector2(700 - i * 25, 30), 10, Color(1.0, 0.3, 0.5, 0.3))
 		draw_circle(Vector2(700 - i * 25, 30), 6, Color(1.0, 0.3, 0.5))
 	
-	# Power-up indicator on screen
+	# Power-up on screen
 	if powerup_active:
 		var col = get_powerup_color()
 		draw_circle(powerup_position, powerup_radius * 1.5 * powerup_pulse, Color(col.r, col.g, col.b, 0.3))
 		draw_circle(powerup_position, powerup_radius, col)
-
-func get_powerup_color():
-	if powerup_type == "speed_up":
-		return Color(1.0, 0.2, 0.2)
-	elif powerup_type == "slow":
-		return Color(0.2, 0.5, 1.0)
-	elif powerup_type == "grow_left":
-		return Color(0.2, 1.0, 0.2)
-	elif powerup_type == "shrink_right" or powerup_type == "shrink_ai":
-		return Color(1.0, 0.8, 0.2)
-	return Color(1.0, 1.0, 0.2)
