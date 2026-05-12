@@ -273,7 +273,7 @@ func _draw():
 		var txt = "x" + str(combo_display)
 		if pts > 1:
 			txt = txt + " [" + str(pts) + "P]"
-		draw_string(_custom_font, Vector2(320, 575), txt, modulate=COLOR_COMBO)
+		draw_string(_custom_font, Vector2(320, 575), txt, 1, -1, COLOR_COMBO)
 	
 	# Power-up on screen
 	if powerup_active:
@@ -282,4 +282,4 @@ func _draw():
 		draw_circle(powerup_position, powerup_radius, col)
 		if _custom_font != null:
 			var label = get_powerup_label()
-			draw_string(_custom_font, powerup_position + Vector2(-25, -25), label, modulate=Color.white)
+			draw_string(_custom_font, powerup_position + Vector2(-25, -25), label, 1, -1, Color.white)
