@@ -14,7 +14,7 @@ var score1 = 0
 var score2 = 0
 
 func _ready():
-	print("DEBUG: _ready called")
+	print("DEBUG V31: _ready called")
 
 func _process(delta):
 	ball_position += ball_velocity * delta
@@ -54,26 +54,22 @@ func reset_ball():
 	ball_velocity = Vector2(400 * (1 if randf() > 0.5 else -1), 400 * (1 if randf() > 0.5 else -1))
 
 func _draw():
+	# Background
 	draw_rect(Rect2(0, 0, 800, 600), Color(0.05, 0.05, 0.12))
 	
-	for i in range(0, 600, 20):
-		draw_rect(Rect2(398, i + 5, 4, 10), Color(0.3, 0.5, 0.8, 0.4))
-	
-	draw_circle(ball_position, ball_radius * 1.8, Color(0.0, 0.8, 0.6, 0.2))
-	draw_circle(ball_position, ball_radius * 1.4, Color(0.0, 1.0, 0.8, 0.3))
+	# Ball - solid cyan circle
 	draw_circle(ball_position, ball_radius, Color(0.0, 1.0, 0.8))
 	
-	draw_rect(Rect2(10, pad1_pos.y - pad1_height * 0.5, 20, pad1_height), Color(0.2, 0.6, 1.0, 0.35), true, 6)
+	# Left paddle - solid blue rectangle
 	draw_rect(Rect2(10, pad1_pos.y - pad1_height * 0.5, 20, pad1_height), Color(0.2, 0.6, 1.0))
 	
-	draw_rect(Rect2(770, pad2_pos.y - pad2_height * 0.5, 20, pad2_height), Color(1.0, 0.3, 0.5, 0.35), true, 6)
+	# Right paddle - solid pink rectangle
 	draw_rect(Rect2(770, pad2_pos.y - pad2_height * 0.5, 20, pad2_height), Color(1.0, 0.3, 0.5))
 	
-	for i in range(score1):
-		draw_circle(Vector2(100 + i * 25, 30), 10, Color(0.2, 0.6, 1.0, 0.3))
-		draw_circle(Vector2(100 + i * 25, 30), 6, Color(0.2, 0.6, 1.0))
-	for i in range(score2):
-		draw_circle(Vector2(700 - i * 25, 30), 10, Color(1.0, 0.3, 0.5, 0.3))
-		draw_circle(Vector2(700 - i * 25, 30), 6, Color(1.0, 0.3, 0.5))
+	# Simple score indicator
+	if score1 > 0:
+		draw_circle(Vector2(100, 30), 8, Color(0.2, 0.6, 1.0))
+	if score2 > 0:
+		draw_circle(Vector2(700, 30), 8, Color(1.0, 0.3, 0.5))
 	
-	print("DEBUG: _draw called")
+	print("DEBUG V31: _draw called")
