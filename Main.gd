@@ -63,7 +63,7 @@ func _ready():
 		particle_b.append(1.0)
 	
 	var fd = DynamicFontData.new()
-	fd.font_path = "res://font.ttf"
+	fd.data = load("res://font.ttf")
 	fd.size = 20
 	_custom_font = DynamicFont.new()
 	_custom_font.font_data = fd
