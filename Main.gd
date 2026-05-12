@@ -13,50 +13,34 @@ var pad2_height = 100.0
 var score1 = 0
 var score2 = 0
 
-onready var hit_sound = $hit_sound
-onready var score_sound = $score_sound
-onready var powerup_sound = $powerup_sound
-onready var wall_sound = $wall_sound
-
 func _ready():
 	print("DEBUG: _ready called")
 
 func _process(delta):
-	# Ball movement
 	ball_position += ball_velocity * delta
 	
-	# Ball collision with top/bottom
 	if ball_position.y < ball_radius or ball_position.y > 600 - ball_radius:
 		ball_velocity.y = -ball_velocity.y
 	
-	# Ball collision with left paddle
 	if ball_position.x < 50 and abs(ball_position.y - pad1_pos.y) < pad1_height * 0.5:
 		ball_velocity.x = abs(ball_velocity.x)
-		hit_sound.play()
 	
-	# Ball collision with right paddle
 	if ball_position.x > 750 and abs(ball_position.y - pad2_pos.y) < pad2_height * 0.5:
 		ball_velocity.x = -abs(ball_velocity.x)
-		hit_sound.play()
 	
-	# Score
 	if ball_position.x < ball_radius:
 		score2 += 1
-		score_sound.play()
 		reset_ball()
 	if ball_position.x > 800 - ball_radius:
 		score1 += 1
-		score_sound.play()
 		reset_ball()
 	
-	# AI paddle movement
 	if ball_position.y < pad2_pos.y - 30:
 		pad2_pos.y -= pad_speed * 0.7 * delta
 	if ball_position.y > pad2_pos.y + 30:
 		pad2_pos.y += pad_speed * 0.7 * delta
 	pad2_pos.y = clamp(pad2_pos.y, 50, 550)
 	
-	# Player input
 	if Input.is_action_pressed("move_up"):
 		pad1_pos.y -= pad_speed * delta
 	if Input.is_action_pressed("move_down"):
@@ -70,27 +54,21 @@ func reset_ball():
 	ball_velocity = Vector2(400 * (1 if randf() > 0.5 else -1), 400 * (1 if randf() > 0.5 else -1))
 
 func _draw():
-	# Background
 	draw_rect(Rect2(0, 0, 800, 600), Color(0.05, 0.05, 0.12))
 	
-	# Center line
 	for i in range(0, 600, 20):
 		draw_rect(Rect2(398, i + 5, 4, 10), Color(0.3, 0.5, 0.8, 0.4))
 	
-	# Ball glow
 	draw_circle(ball_position, ball_radius * 1.8, Color(0.0, 0.8, 0.6, 0.2))
 	draw_circle(ball_position, ball_radius * 1.4, Color(0.0, 1.0, 0.8, 0.3))
 	draw_circle(ball_position, ball_radius, Color(0.0, 1.0, 0.8))
 	
-	# Left paddle with glow
 	draw_rect(Rect2(10, pad1_pos.y - pad1_height * 0.5, 20, pad1_height), Color(0.2, 0.6, 1.0, 0.35), true, 6)
 	draw_rect(Rect2(10, pad1_pos.y - pad1_height * 0.5, 20, pad1_height), Color(0.2, 0.6, 1.0))
 	
-	# Right paddle with glow
 	draw_rect(Rect2(770, pad2_pos.y - pad2_height * 0.5, 20, pad2_height), Color(1.0, 0.3, 0.5, 0.35), true, 6)
 	draw_rect(Rect2(770, pad2_pos.y - pad2_height * 0.5, 20, pad2_height), Color(1.0, 0.3, 0.5))
 	
-	# Score dots
 	for i in range(score1):
 		draw_circle(Vector2(100 + i * 25, 30), 10, Color(0.2, 0.6, 1.0, 0.3))
 		draw_circle(Vector2(100 + i * 25, 30), 6, Color(0.2, 0.6, 1.0))
