@@ -14,7 +14,7 @@ var score1 = 0
 var score2 = 0
 
 func _ready():
-	print("DEBUG V31: _ready called")
+	print("DEBUG V32: _ready called")
 
 func _process(delta):
 	ball_position += ball_velocity * delta
@@ -47,29 +47,20 @@ func _process(delta):
 		pad1_pos.y += pad_speed * delta
 	pad1_pos.y = clamp(pad1_pos.y, 50, 550)
 	
-	update()
+	queue_redraw()
 
 func reset_ball():
 	ball_position = Vector2(400, 300)
 	ball_velocity = Vector2(400 * (1 if randf() > 0.5 else -1), 400 * (1 if randf() > 0.5 else -1))
 
 func _draw():
-	# Background
 	draw_rect(Rect2(0, 0, 800, 600), Color(0.05, 0.05, 0.12))
-	
-	# Ball - solid cyan circle
 	draw_circle(ball_position, ball_radius, Color(0.0, 1.0, 0.8))
-	
-	# Left paddle - solid blue rectangle
 	draw_rect(Rect2(10, pad1_pos.y - pad1_height * 0.5, 20, pad1_height), Color(0.2, 0.6, 1.0))
-	
-	# Right paddle - solid pink rectangle
 	draw_rect(Rect2(770, pad2_pos.y - pad2_height * 0.5, 20, pad2_height), Color(1.0, 0.3, 0.5))
-	
-	# Simple score indicator
 	if score1 > 0:
 		draw_circle(Vector2(100, 30), 8, Color(0.2, 0.6, 1.0))
 	if score2 > 0:
 		draw_circle(Vector2(700, 30), 8, Color(1.0, 0.3, 0.5))
 	
-	print("DEBUG V31: _draw called")
+	print("DEBUG V32: _draw called")
