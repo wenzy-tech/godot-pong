@@ -30,18 +30,14 @@ var powerup_spawn_timer = 0.0
 var powerup_spawn_interval = 10.0
 var powerup_pulse = 0.0
 
-var _custom_font = null
 
 const POWERUP_TYPES = ["speed_up", "slow", "grow_left", "shrink_right", "shrink_ai", "big_ball"]
 const COLOR_COMBO = Color(1.0, 0.3, 0.0)
 
 func _ready():
 	print("DEBUG V33: _ready called")
-	var fd = DynamicFontData.new()
 	fd.font_path = "res://font.ttf"
 	fd.size = 24
-	_custom_font = DynamicFont.new()
-	_custom_font.font_data = fd
 
 func _process(delta):
 	ball_position += ball_velocity * delta
@@ -174,26 +170,6 @@ func _draw():
 		draw_circle(Vector2(700 - i * 25, 30), 10, Color(1.0, 0.3, 0.5, 0.3))
 		draw_circle(Vector2(700 - i * 25, 30), 6, Color(1.0, 0.3, 0.5))
 	
-	if combo_display > 1 and _custom_font != null:
-		var pts = get_score_points(combo_display)
-		var txt = "x" + str(combo_display)
-		if pts > 1:
-			txt = txt + " [" + str(pts) + "P]"
-		draw_string(_custom_font, Vector2(310, 570), txt, COLOR_COMBO)
-	
-	if powerup_active and _custom_font != null:
-		var col = get_powerup_color()
-		draw_circle(powerup_position, powerup_radius * 1.5 * powerup_pulse, Color(col.r, col.g, col.b, 0.3))
-		draw_circle(powerup_position, powerup_radius, col)
-		var label = powerup_type
-		if powerup_type == "grow_left":
-			label = "GROW"
-		elif powerup_type == "shrink_right" or powerup_type == "shrink_ai":
-			label = "SHRINK"
-		elif powerup_type == "speed_up":
-			label = "FAST"
-		elif powerup_type == "slow":
-			label = "SLOW"
-		elif powerup_type == "big_ball":
-			label = "BIG"
-		draw_string(_custom_font, powerup_position + Vector2(-30, -25), label, Color.white)
+	if combo_display > 1:
+		# Combo text would be here
+		pass
