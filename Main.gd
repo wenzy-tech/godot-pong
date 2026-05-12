@@ -57,8 +57,15 @@ const COLOR_POWERUP_AI = Color(1.0, 0.2, 1.0)
 const COLOR_POWERUP_BIG = Color(1.0, 1.0, 0.2)
 
 func _ready():
-	winner_label.visible = false
-	restart_label.visible = false
+	print("DEBUG: _ready starting")
+	if winner_label:
+		winner_label.visible = false
+	else:
+		print("DEBUG: winner_label is null!")
+	if restart_label:
+		restart_label.visible = false
+	else:
+		print("DEBUG: restart_label is null!")
 	
 	var font_data = DynamicFontData.new()
 	font_data.font_path = "res://font.ttf"
@@ -77,8 +84,8 @@ func _process(delta):
 			shake_offset_x = 0
 			shake_offset_y = 0
 		else:
-			shake_offset_x = rand_range(-1, 1) * shake_amount
-			shake_offset_y = rand_range(-1, 1) * shake_amount
+			shake_offset_x = randf_range(-1, 1) * shake_amount
+			shake_offset_y = randf_range(-1, 1) * shake_amount
 	
 	if game_over:
 		winner_label.visible = true
