@@ -39,8 +39,8 @@ onready var score_sound = $score_sound
 onready var powerup_sound = $powerup_sound
 onready var wall_sound = $wall_sound
 
-onready var winner_label = get_node("WinnerLabel")
-onready var restart_label = get_node("RestartLabel")
+onready var winner_label = $WinnerLabel
+onready var restart_label = $RestartLabel
 
 var _custom_font = null
 
@@ -327,3 +327,12 @@ func _draw():
 		if _custom_font != null:
 			draw_string(_custom_font, Vector2(180 + ox, 260 + oy), winner, Color(1, 0.84, 0))
 			draw_string(_custom_font, Vector2(200 + ox, 330 + oy), "Press SPACE to restart", Color(0.7, 0.7, 0.7))
+# Debug helper
+func _get_winner_label():
+	print("DEBUG: get_node attempt for WinnerLabel")
+	var result = get_node("WinnerLabel")
+	if result:
+		print("DEBUG: get_node found WinnerLabel: ", result)
+	else:
+		print("DEBUG: get_node returned null for WinnerLabel")
+	return result
