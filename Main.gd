@@ -41,7 +41,10 @@ var particle_r = []
 var particle_g = []
 var particle_b = []
 
+var _custom_font = null
+
 const POWERUP_TYPES = ["speed_up", "slow", "grow_left", "shrink_right", "shrink_ai", "big_ball"]
+const COLOR_COMBO = Color(1.0, 0.3, 0.0)
 
 func _ready():
 	for i in range(MAX_PARTICLES):
@@ -53,6 +56,13 @@ func _ready():
 		particle_r.append(1.0)
 		particle_g.append(1.0)
 		particle_b.append(1.0)
+	
+	# Load font
+	var fd = DynamicFontData.new()
+	fd.font_path = "res://font.ttf"
+	fd.size = 20
+	_custom_font = DynamicFont.new()
+	_custom_font.font_data = fd
 
 func spawn_particle(x, y, r, g, b):
 	var slot = -1
@@ -197,6 +207,20 @@ func get_powerup_color():
 		return Color(1.0, 0.8, 0.2)
 	return Color(1.0, 1.0, 0.2)
 
+func get_powerup_label():
+	var label = powerup_type
+	if powerup_type == "grow_left":
+		label = "GROW"
+	elif powerup_type == "shrink_right" or powerup_type == "shrink_ai":
+		label = "SHRINK"
+	elif powerup_type == "speed_up":
+		label = "FAST"
+	elif powerup_type == "slow":
+		label = "SLOW"
+	elif powerup_type == "big_ball":
+		label = "BIG"
+	return label
+
 func _draw():
 	draw_rect(Rect2(0, 0, 800, 600), Color(0.05, 0.05, 0.12))
 	
@@ -231,8 +255,18 @@ func _draw():
 		draw_circle(Vector2(700 - i * 25, 30), 10, Color(1.0, 0.3, 0.5, 0.3))
 		draw_circle(Vector2(700 - i * 25, 30), 6, Color(1.0, 0.3, 0.5))
 	
+	# Combo text
+	if combo_display > 1 and _custom_font != null:
+		var pts = get_score_points(combo_display)
+		var txt = "x" + str(combo_display)
+		if pts > 1:
+			txt = txt + " [" + str(pts) + "P]"
+		draw_string(_custom_font, Vector2(320, 575), txt, COLOR_COMBO)
+	
 	# Power-up on screen
-	if powerup_active:
+	if powerup_active and _custom_font != null:
 		var col = get_powerup_color()
 		draw_circle(powerup_position, powerup_radius * 1.5 * powerup_pulse, Color(col.r, col.g, col.b, 0.3))
 		draw_circle(powerup_position, powerup_radius, col)
+		var label = get_powerup_label()
+		draw_string(_custom_font, powerup_position + Vector2(-25, -25), label, Color.white)
