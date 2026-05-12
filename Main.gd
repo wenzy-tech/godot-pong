@@ -62,11 +62,8 @@ func _ready():
 		particle_g.append(1.0)
 		particle_b.append(1.0)
 	
-	var fd = DynamicFontData.new()
-	fd.data = load("res://font.ttf")
-	fd.size = 20
 	_custom_font = DynamicFont.new()
-	_custom_font.font_data = fd
+	_custom_font.font_data = load("res://font.ttf")
 
 func spawn_particle(x, y, r, g, b):
 	var slot = -1
