@@ -3,10 +3,10 @@ extends Control
 var time_elapsed: float = 0.0
 var selected_difficulty: String = "NORMAL"
 
-@onready var title_label: Label = $Title
-@onready var easy_btn: Button = $EasyBtn
-@onready var normal_btn: Button = $NormalBtn
-@onready var hard_btn: Button = $HardBtn
+@onready var title_label: Label = $MainVBox/Title
+@onready var easy_btn: Button = $MainVBox/DiffButtons/EasyBtn
+@onready var normal_btn: Button = $MainVBox/DiffButtons/NormalBtn
+@onready var hard_btn: Button = $MainVBox/DiffButtons/HardBtn
 
 func _ready() -> void:
 	_select_difficulty("NORMAL")

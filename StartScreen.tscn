@@ -70,44 +70,53 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.02, 0.02, 0.08, 1)
 
-[node name="Title" type="Label" parent="."]
-offset_left = 0.0
-offset_top = 80.0
-offset_right = 800.0
-offset_bottom = 160.0
+[node name="MainVBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -200.0
+offset_right = 200.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 15
+
+[node name="Title" type="Label" parent="MainVBox"]
+layout_mode = 2
 theme_override_colors/font_color = Color(0.0, 1.0, 0.9, 1.0)
 theme_override_fonts/font = ExtResource(1)
 text = "⚡ PONG ⚡"
 horizontal_alignment = 1
-vertical_alignment = 1
 
-[node name="Subtitle" type="Label" parent="."]
-offset_left = 0.0
-offset_top = 160.0
-offset_right = 800.0
-offset_bottom = 195.0
+[node name="Subtitle" type="Label" parent="MainVBox"]
+layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 0.5, 0.8, 1.0)
 theme_override_fonts/font = ExtResource(1)
 text = "CYBERPUNK EDITION"
 horizontal_alignment = 1
-vertical_alignment = 1
 
-[node name="DifficultyLabel" type="Label" parent="."]
-offset_left = 0.0
-offset_top = 230.0
-offset_right = 800.0
-offset_bottom = 265.0
+[node name="HSeparator" type="HSeparator" parent="MainVBox"]
+layout_mode = 2
+theme_override_colors/separator_color = Color(0.2, 0.5, 0.8, 0.3)
+
+[node name="DifficultyLabel" type="Label" parent="MainVBox"]
+layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.5, 0.7, 1.0)
 theme_override_fonts/font = ExtResource(1)
 text = "SELECT DIFFICULTY"
 horizontal_alignment = 1
-vertical_alignment = 1
 
-[node name="EasyBtn" type="Button" parent="."]
-offset_left = 150.0
-offset_top = 280.0
-offset_right = 290.0
-offset_bottom = 330.0
+[node name="DiffButtons" type="HBoxContainer" parent="MainVBox"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="EasyBtn" type="Button" parent="MainVBox/DiffButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.3, 1.0, 0.5, 1.0)
 theme_override_colors/font_hover_color = Color(0.5, 1.0, 0.7, 1.0)
 theme_override_colors/font_pressed_color = Color(1.0, 1.0, 1.0, 1.0)
@@ -117,11 +126,9 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_btn_easy")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_easy")
 text = "EASY"
 
-[node name="NormalBtn" type="Button" parent="."]
-offset_left = 305.0
-offset_top = 280.0
-offset_right = 445.0
-offset_bottom = 330.0
+[node name="NormalBtn" type="Button" parent="MainVBox/DiffButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.2, 0.7, 1.0, 1.0)
 theme_override_colors/font_hover_color = Color(0.4, 0.9, 1.0, 1.0)
 theme_override_colors/font_pressed_color = Color(1.0, 1.0, 1.0, 1.0)
@@ -131,11 +138,9 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_btn_normal")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_normal")
 text = "NORMAL"
 
-[node name="HardBtn" type="Button" parent="."]
-offset_left = 460.0
-offset_top = 280.0
-offset_right = 600.0
-offset_bottom = 330.0
+[node name="HardBtn" type="Button" parent="MainVBox/DiffButtons"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1.0, 0.3, 0.4, 1.0)
 theme_override_colors/font_hover_color = Color(1.0, 0.5, 0.6, 1.0)
 theme_override_colors/font_pressed_color = Color(1.0, 1.0, 1.0, 1.0)
@@ -145,22 +150,20 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_btn_hard")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_btn_hard")
 text = "HARD"
 
-[node name="DifficultyInfo" type="Label" parent="."]
-offset_left = 0.0
-offset_top = 345.0
-offset_right = 800.0
-offset_bottom = 370.0
+[node name="DifficultyInfo" type="Label" parent="MainVBox"]
+layout_mode = 2
 theme_override_colors/font_color = Color(0.4, 0.4, 0.6, 0.8)
 theme_override_fonts/font = ExtResource(1)
-text = "EASY: Slow AI | NORMAL: Balanced | HARD: Fast AI"
+text = "Slow AI | Balanced | Fast AI"
 horizontal_alignment = 1
-vertical_alignment = 1
 
-[node name="StartBtn" type="Button" parent="."]
-offset_left = 300.0
-offset_top = 400.0
-offset_right = 500.0
-offset_bottom = 460.0
+[node name="HSeparator2" type="HSeparator" parent="MainVBox"]
+layout_mode = 2
+theme_override_colors/separator_color = Color(0.2, 0.5, 0.8, 0.3)
+
+[node name="StartBtn" type="Button" parent="MainVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.0, 1.0, 0.9, 1.0)
 theme_override_colors/font_hover_color = Color(0.3, 1.0, 1.0, 1.0)
 theme_override_colors/font_pressed_color = Color(1.0, 0.3, 0.6, 1.0)
@@ -170,11 +173,9 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_btn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_btn")
 text = "▶ START GAME"
 
-[node name="QuitBtn" type="Button" parent="."]
-offset_left = 300.0
-offset_top = 475.0
-offset_right = 500.0
-offset_bottom = 535.0
+[node name="QuitBtn" type="Button" parent="MainVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1.0, 0.3, 0.5, 0.8)
 theme_override_colors/font_hover_color = Color(1.0, 0.5, 0.7, 1.0)
 theme_override_colors/font_pressed_color = Color(1.0, 0.3, 0.6, 1.0)
@@ -184,18 +185,19 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_btn")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_btn")
 text = "✕ QUIT"
 
-[node name="Instructions" type="Label" parent="."]
-offset_left = 0.0
-offset_top = 530.0
-offset_right = 800.0
-offset_bottom = 560.0
+[node name="Spacer" type="Control" parent="MainVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 20)
+
+[node name="Instructions" type="Label" parent="MainVBox"]
+layout_mode = 2
 theme_override_colors/font_color = Color(0.3, 0.5, 0.7, 0.8)
 theme_override_fonts/font = ExtResource(1)
-text = "W/S or ↑/↓ to move | ESC to return to menu"
+text = "W/S or ↑/↓ to move"
 horizontal_alignment = 1
-vertical_alignment = 1
 
 [node name="Version" type="Label" parent="."]
+layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
@@ -206,12 +208,12 @@ grow_horizontal = 2
 grow_vertical = 0
 theme_override_colors/font_color = Color(0.2, 0.3, 0.5, 0.6)
 theme_override_fonts/font = ExtResource(1)
-text = "v58"
+text = "v60"
 horizontal_alignment = 2
 vertical_alignment = 2
 
-[connection signal="pressed" from="EasyBtn" to="." method="_on_easy_pressed"]
-[connection signal="pressed" from="NormalBtn" to="." method="_on_normal_pressed"]
-[connection signal="pressed" from="HardBtn" to="." method="_on_hard_pressed"]
-[connection signal="pressed" from="StartBtn" to="." method="_on_start_pressed"]
-[connection signal="pressed" from="QuitBtn" to="." method="_on_quit_pressed"]
+[connection signal="pressed" from="MainVBox/DiffButtons/EasyBtn" to="." method="_on_easy_pressed"]
+[connection signal="pressed" from="MainVBox/DiffButtons/NormalBtn" to="." method="_on_normal_pressed"]
+[connection signal="pressed" from="MainVBox/DiffButtons/HardBtn" to="." method="_on_hard_pressed"]
+[connection signal="pressed" from="MainVBox/StartBtn" to="." method="_on_start_pressed"]
+[connection signal="pressed" from="MainVBox/QuitBtn" to="." method="_on_quit_pressed"]
