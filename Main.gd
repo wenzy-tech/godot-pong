@@ -41,6 +41,12 @@ var pad1_height: float = 100.0
 var pad2_height: float = 100.0
 
 # ============================================
+# GAME STATE
+# ============================================
+var game_over: bool = false
+var winner: String = ""
+
+# ============================================
 # SCORE & COMBO
 # ============================================
 var score1: int = 0
@@ -111,6 +117,10 @@ func _load_font() -> void:
 # GAME LOOP
 # ============================================
 func _process(delta: float) -> void:
+	if game_over:
+		if Input.is_action_just_pressed("ui_accept"):
+			get_tree().reload_current_scene()
+		return
 	_update_ball(delta)
 	_update_paddles(delta)
 	_update_combo(delta)
@@ -144,7 +154,12 @@ func _update_ball(delta: float) -> void:
 	if scoring_side != 0:
 		_on_score(scoring_side)
 		if score1 >= 11 or score2 >= 11:
-			get_tree().reload_current_scene()
+			game_over = true
+			winner = "PLAYER 1" if score1 >= 11 else "PLAYER 2"
+			var game_over_label = $GameOverLabel
+			if game_over_label:
+				game_over_label.text = winner + " WINS!\nPress SPACE to restart"
+				game_over_label.visible = true
 
 func _update_paddles(delta: float) -> void:
 	# AI movement (paddle 2)

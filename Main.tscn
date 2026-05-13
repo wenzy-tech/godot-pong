@@ -47,3 +47,14 @@ theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_fonts/font = ExtResource(6)
 text = "FAST"
 horizontal_alignment = 1
+
+[node name="GameOverLabel" type="Label" parent="."]
+visible = false
+offset_left = 250.0
+offset_top = 200.0
+offset_right = 550.0
+offset_bottom = 350.0
+theme_override_colors/font_color = Color(1, 1, 0, 1)
+theme_override_fonts/font = ExtResource(6)
+text = "PLAYER 1 WINS!\nPress SPACE to restart"
+horizontal_alignment = 1
