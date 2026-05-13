@@ -101,7 +101,11 @@ func _init_particles() -> void:
 		particle_color.append(Color.WHITE)
 
 func _load_font() -> void:
-	pass  # Skip custom font rendering for now - focus on game running first
+	# Try to load font as DynamicFont
+	var font_res = load("res://font.ttf")
+	if font_res and font_res is FontFile:
+		_custom_font = DynamicFont.new()
+		_custom_font.font_data = font_res
 
 # ============================================
 # GAME LOOP
@@ -320,8 +324,6 @@ func _draw() -> void:
 	_draw_ball()
 	_draw_paddles()
 	_draw_score()
-	_draw_combo_text()
-	_draw_powerup()
 
 func _draw_background() -> void:
 	draw_rect(Rect2(Vector2.ZERO, SCREEN_SIZE), COLOR_BG)
@@ -371,25 +373,24 @@ func _draw_score() -> void:
 		draw_circle(pos, 6, COLOR_PAD2)
 
 func _draw_combo_text() -> void:
-	if combo_display > 1 and _custom_font != null:
-		var pts: int = get_score_points(combo_display)
-		var txt: String = "x" + str(combo_display)
-		if pts > 1:
-			txt = "%s [%dP]" % [txt, pts]
-		draw_string(_custom_font, Vector2(320, 575), txt, HORIZONTAL_ALIGNMENT_CENTER, -1, 24, Color.WHITE)
+	# Use the Label node instead of custom drawing for text
+	var combo_label = $ComboLabel
+	if combo_label:
+		if combo_display > 1:
+			combo_label.visible = true
+			var pts: int = get_score_points(combo_display)
+			var txt: String = "x" + str(combo_display)
+			if pts > 1:
+				txt = "%s [%dP]" % [txt, pts]
+			combo_label.text = txt
+		else:
+			combo_label.visible = false
 
 func _draw_powerup() -> void:
-	if not powerup_active:
-		return
-	
-	var config: Dictionary = POWERUP_CONFIG[powerup_type]
-	var col: Color = config["color"]
-	
-	# Pulsing glow + core
-	draw_circle(powerup_position, powerup_radius * 1.5 * powerup_pulse, Color(col.r, col.g, col.b, 0.3))
-	draw_circle(powerup_position, powerup_radius, col)
-	
-	# Label
-	if _custom_font != null:
-		var label: String = config["label"]
-		draw_string(_custom_font, powerup_position + Vector2(-25, -25), label, HORIZONTAL_ALIGNMENT_CENTER, -1, 24, Color.WHITE)
+	# Draw powerup circle indicator
+	if powerup_active:
+		var config: Dictionary = POWERUP_CONFIG[powerup_type]
+		var col: Color = config["color"]
+		# Pulsing glow + core
+		draw_circle(powerup_position, powerup_radius * 1.5 * powerup_pulse, Color(col.r, col.g, col.b, 0.3))
+		draw_circle(powerup_position, powerup_radius, col)
