@@ -143,6 +143,8 @@ func _update_ball(delta: float) -> void:
 		scoring_side = 2
 	if scoring_side != 0:
 		_on_score(scoring_side)
+		if score1 >= 11 or score2 >= 11:
+			get_tree().reload_current_scene()
 
 func _update_paddles(delta: float) -> void:
 	# AI movement (paddle 2)
@@ -324,6 +326,7 @@ func _draw() -> void:
 	_draw_ball()
 	_draw_paddles()
 	_draw_score()
+	_draw_powerup()
 
 func _draw_background() -> void:
 	draw_rect(Rect2(Vector2.ZERO, SCREEN_SIZE), COLOR_BG)
