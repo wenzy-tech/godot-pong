@@ -92,6 +92,8 @@ var glow_intensity: float = 1.0
 # ============================================
 var game_over: bool = false
 var winner: String = ""
+var final_score: String = ""
+var difficulty: String = "NORMAL"
 
 # ============================================
 # AUDIO NODES
@@ -184,7 +186,10 @@ func _update_paddles(delta: float) -> void:
 	var ai_diff = ball_position.y - pad2_pos.y
 	if abs(ai_diff) > 30.0:
 		var direction = sign(ai_diff)
-		pad2_pos.y += direction * pad_speed * 0.7 * delta
+		var speed_mult = 0.7
+		if has_node("/root/GameState"):
+			speed_mult = /root/GameState.difficulty_multiplier
+		pad2_pos.y += direction * pad_speed * speed_mult * delta
 	pad2_pos.y = clamp(pad2_pos.y, 50.0, SCREEN_SIZE.y - 50.0)
 	
 	# Player input (paddle 1)
@@ -269,9 +274,12 @@ func _on_score(side: int) -> void:
 func _trigger_game_over() -> void:
 	game_over = true
 	winner = "PLAYER 1" if score1 >= WINNING_SCORE else "PLAYER 2"
+	final_score = "%d - %d" % [score1, score2]
+	if has_node("/root/GameState"):
+		difficulty = /root/GameState.difficulty_name
 	var game_over_label = $GameOverLabel
 	if game_over_label:
-		game_over_label.text = winner + " WINS!\nPress SPACE to restart"
+		game_over_label.text = "%s WINS!\n%s\nDifficulty: %s\n\nPress SPACE to restart\nPress ESC for menu" % [winner, final_score, difficulty]
 		game_over_label.visible = true
 	ball_velocity = Vector2.ZERO
 

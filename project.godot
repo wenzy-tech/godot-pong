@@ -5,6 +5,10 @@ config_version=4
 config/name="Pong Game"
 run/main_scene="res://StartScreen.tscn"
 
+[autoload]
+
+GameState="*res://autoload/GameState.gd"
+
 [display]
 
 window/size/width=800
