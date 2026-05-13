@@ -133,10 +133,13 @@ func _update_ball(delta: float) -> void:
 		_on_paddle2_hit()
 	
 	# Scoring
+	var scoring_side: int = 0
 	if ball_position.x < ball_radius:
-		_on_score(side=1)
+		scoring_side = 1
 	elif ball_position.x > SCREEN_SIZE.x - ball_radius:
-		_on_score(side=2)
+		scoring_side = 2
+	if scoring_side != 0:
+		_on_score(scoring_side)
 
 func _update_paddles(delta: float) -> void:
 	# AI movement (paddle 2)
