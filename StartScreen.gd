@@ -3,19 +3,16 @@ extends Control
 var time_elapsed: float = 0.0
 var selected_difficulty: String = "NORMAL"
 
-@onready var title_label: Label = $CenterContainer/VBox/Title
-@onready var easy_btn: Button = $CenterContainer/VBox/DifficultyButtons/EasyBtn
-@onready var normal_btn: Button = $CenterContainer/VBox/DifficultyButtons/NormalBtn
-@onready var hard_btn: Button = $CenterContainer/VBox/DifficultyButtons/HardBtn
+@onready var title_label: Label = $Title
+@onready var easy_btn: Button = $EasyBtn
+@onready var normal_btn: Button = $NormalBtn
+@onready var hard_btn: Button = $HardBtn
 
 func _ready() -> void:
 	_select_difficulty("NORMAL")
 
 func _process(delta: float) -> void:
 	time_elapsed += delta
-	_update_animations(delta)
-
-func _update_animations(delta: float) -> void:
 	var glow = 0.7 + sin(time_elapsed * 2.0) * 0.3
 	title_label.modulate = Color(0.0, glow, glow * 0.9, 1.0)
 
