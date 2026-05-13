@@ -3,7 +3,7 @@ config_version=4
 [application]
 
 config/name="Pong Game"
-run/main_scene="res://Main.tscn"
+run/main_scene="res://StartScreen.tscn"
 
 [display]
 

@@ -125,7 +125,15 @@ func _process(delta: float) -> void:
 	
 	if game_over:
 		if Input.is_action_just_pressed("ui_accept"):
+			# Restart game
 			get_tree().reload_current_scene()
+		if Input.is_action_just_pressed("ui_cancel"):
+			# Back to menu
+			get_tree().change_scene_to_file("res://StartScreen.tscn")
+		return
+	
+	if Input.is_action_just_pressed("ui_cancel"):
+		get_tree().change_scene_to_file("res://StartScreen.tscn")
 		return
 	
 	_update_ball(delta)
