@@ -377,7 +377,7 @@ func _draw_combo_text() -> void:
 		var txt: String = "x" + str(combo_display)
 		if pts > 1:
 			txt = "%s [%dP]" % [txt, pts]
-		draw_string(_custom_font, Vector2(320, 575), txt, HORIZONTAL_ALIGNMENT_CENTER, -1, Color.WHITE)
+		draw_string(_custom_font, Vector2(320, 575), txt, HORIZONTAL_ALIGNMENT_CENTER, -1, 24, Color.WHITE)
 
 func _draw_powerup() -> void:
 	if not powerup_active:
@@ -393,4 +393,4 @@ func _draw_powerup() -> void:
 	# Label
 	if _custom_font != null:
 		var label: String = config["label"]
-		draw_string(_custom_font, powerup_position + Vector2(-25, -25), label, HORIZONTAL_ALIGNMENT_CENTER, -1, Color.WHITE)
+		draw_string(_custom_font, powerup_position + Vector2(-25, -25), label, HORIZONTAL_ALIGNMENT_CENTER, -1, 24, Color.WHITE)
