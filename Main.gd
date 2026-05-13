@@ -101,8 +101,10 @@ func _init_particles() -> void:
 		particle_color.append(Color.WHITE)
 
 func _load_font() -> void:
-	_custom_font = DynamicFont.new()
-	_custom_font.font_data = load("res://font.ttf")
+	# Font is loaded via ext_resource in Main.tscn, stored in Label nodes
+	# For custom drawing we need to reference it differently in Godot 4
+	# For now, skip custom font loading and rely on Label nodes for text
+	_custom_font = null
 
 # ============================================
 # GAME LOOP
