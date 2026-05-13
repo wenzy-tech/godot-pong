@@ -188,7 +188,7 @@ func _update_paddles(delta: float) -> void:
 		var direction = sign(ai_diff)
 		var speed_mult = 0.7
 		if has_node("/root/GameState"):
-			speed_mult = /root/GameState.difficulty_multiplier
+			speed_mult = get_node("/root/GameState").difficulty_multiplier
 		pad2_pos.y += direction * pad_speed * speed_mult * delta
 	pad2_pos.y = clamp(pad2_pos.y, 50.0, SCREEN_SIZE.y - 50.0)
 	
@@ -276,7 +276,7 @@ func _trigger_game_over() -> void:
 	winner = "PLAYER 1" if score1 >= WINNING_SCORE else "PLAYER 2"
 	final_score = "%d - %d" % [score1, score2]
 	if has_node("/root/GameState"):
-		difficulty = /root/GameState.difficulty_name
+		difficulty = get_node("/root/GameState").difficulty_name
 	var game_over_label = $GameOverLabel
 	if game_over_label:
 		game_over_label.text = "%s WINS!\n%s\nDifficulty: %s\n\nPress SPACE to restart\nPress ESC for menu" % [winner, final_score, difficulty]

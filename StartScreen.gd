@@ -49,7 +49,7 @@ func _on_hard_pressed() -> void:
 func _on_start_pressed() -> void:
 	# Set difficulty in GameState autoload
 	if has_node("/root/GameState"):
-		/root/GameState.set_difficulty(selected_difficulty)
+		get_node("/root/GameState").set_difficulty(selected_difficulty)
 	
 	# Start game
 	var main_scene = preload("res://Main.tscn").instantiate()
