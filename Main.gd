@@ -35,6 +35,8 @@ const POWERUP_CONFIG: Dictionary = {
 var ball_position: Vector2 = Vector2(400, 300)
 var ball_velocity: Vector2 = Vector2(BALL_INITIAL_SPEED, BALL_INITIAL_SPEED)
 var ball_radius: float = 10.0
+var ball_base_speed: float = BALL_INITIAL_SPEED
+var ball_speed_override: float = 0.0  # 0 = no override, >0 = seconds remaining
 
 # ============================================
 # PADDLES STATE
@@ -210,6 +212,16 @@ func _update_powerups(delta: float) -> void:
 	if powerup_spawn_timer >= powerup_spawn_interval and not powerup_active:
 		_spawn_powerup()
 	
+	# Update ball speed override (slow powerup)
+	if ball_speed_override > 0:
+		ball_speed_override -= delta
+		if ball_speed_override <= 0:
+			ball_speed_override = 0.0
+			# Restore ball speed when timer expires
+			var current_speed = ball_velocity.length()
+			if current_speed < ball_base_speed * 0.7:
+				ball_velocity = ball_velocity.normalized() * ball_base_speed
+	
 	if powerup_active:
 		powerup_timer += delta
 		powerup_pulse = 0.7 + sin(powerup_timer * 6.0) * 0.3
@@ -290,6 +302,8 @@ func get_score_points(combo: int) -> int:
 
 func reset_ball() -> void:
 	ball_position = Vector2(400.0, 300.0)
+	ball_base_speed = BALL_INITIAL_SPEED
+	ball_speed_override = 0.0
 	var sign_x = 1.0 if randf() > 0.5 else -1.0
 	var sign_y = 1.0 if randf() > 0.5 else -1.0
 	ball_velocity = Vector2(BALL_INITIAL_SPEED * sign_x, BALL_INITIAL_SPEED * sign_y)
@@ -336,11 +350,13 @@ func _spawn_powerup() -> void:
 
 func _collect_powerup() -> void:
 	powerup_sound.play()
+	ball_base_speed = ball_velocity.length()  # Remember current speed
 	match powerup_type:
 		"speed_up":
-			ball_velocity = ball_velocity.normalized() * (ball_velocity.length() * 1.5)
+			ball_velocity = ball_velocity.normalized() * (ball_base_speed * 1.5)
 		"slow":
-			ball_velocity = ball_velocity.normalized() * (ball_velocity.length() * 0.55)
+			ball_speed_override = 8.0  # Slow for 8 seconds
+			ball_velocity = ball_velocity.normalized() * (ball_base_speed * 0.55)
 		"grow_left":
 			pad1_height = 160.0
 		"shrink_right":
