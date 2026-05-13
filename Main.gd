@@ -126,9 +126,10 @@ func _update_ball(delta: float) -> void:
 	if _is_hit_paddle1():
 		_on_paddle1_hit()
 	
-	# Paddle 2 collision (right)
-	if _is_hit_paddle2():
-		_on_paddle2_hit()
+	# Paddle 2 collision (right) - check if ball is in paddle zone
+	if ball_position.x > 740.0 and ball_position.x < 790.0:
+		if abs(ball_position.y - pad2_pos.y) < pad2_height * 0.5:
+			_on_paddle2_hit()
 	
 	# Scoring
 	var scoring_side: int = 0
