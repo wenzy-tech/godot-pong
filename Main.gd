@@ -101,11 +101,7 @@ func _init_particles() -> void:
 		particle_color.append(Color.WHITE)
 
 func _load_font() -> void:
-	var font_data = DynamicFontData.new()
-	font_data.data = load("res://font.ttf")
-	_custom_font = DynamicFont.new()
-	_custom_font.font_data = font_data
-	_custom_font.size = 24
+	pass  # Skip custom font rendering for now - focus on game running first
 
 # ============================================
 # GAME LOOP
